@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: row of the units file representing a sequencing unit, i.e. single or paired end read data
+
+properties:
+  library:
+    type         : string
+    description  : name of the library (sample).
+  libtype:
+    type         : string
+    description  : type of experiment that generated the library
+  unit:
+    type         : string
+    description  : replicate id of the given library-libtype combination.
+  fq1:
+    type         : string
+    description  : Path to the forward reads file.
+  fq2:
+    type         : string
+    description  : Path to the reverse reads file.
+required:
+  - library
+  - unit
+  - libtype
+  - fq1

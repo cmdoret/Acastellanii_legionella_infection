@@ -1,0 +1,18 @@
+samples: "samples.tsv"
+units: "units.tsv"
+
+reference: "data/input/genome/C3.fa"
+
+contact_maps:
+  max_res: 20000
+  comp_res: 160000
+
+loops:
+  dist_bins:
+    - 100000
+    - 2000000
+    - 20000000
+
+params:
+  hicstuff_iteralign: "--read-len 150 --aligner bowtie2"
+  bowtie2: "--sensitive-local"

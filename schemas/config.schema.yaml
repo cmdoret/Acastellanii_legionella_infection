@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: The config file contains general parameters for the snakemake pipeline
+
+type : object
+
+properties:
+  samples:
+    type            : string
+    description     : samples metadata file.
+  units:
+    type            : string
+    description     : sequencing units metadata file.
+  reference:
+    type            : string
+    description     : path to the reference genome used in the analysis. Contains the mm10 reference genome along with the genome and plasmid of Salmonella enterica subsp. enterica serovar Typhimurium strain LT2.
+  contact_maps:
+    properties:
+      max_res:
+        type        : number
+        description : maximum resolution used in Hi-C contact maps.
+      comp_res:
+        type        : number
+        description : resolution used in Hi-C contact maps.
+  loops:
+    type            : object
+    properties:
+      dist_bins:
+        type        : array
+        description : basepair values used for loop pileups ranges.
+  params:
+    type            : object
+    properties:
+      hicsuff:
+        type        : string
+        description : parameters used for hicstuff runs.
+      bowtie2:
+        type        : string
+        description : parameters used for all alignments with bowtie2.

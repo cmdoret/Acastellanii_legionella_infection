@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the sample sheet
+
+properties:
+    library:
+        type         : string
+        description  : name of the library
+    id:
+        type         : string
+        description  : original id used in experiments
+    condition:
+        type         : string
+        description  : experimental condition applied to the sample
+    salmonella_strain:
+        type         : string
+        description  : name of the salmonella strain used for infection. WT is wildtype Salmonella enterica subsp. enterica serovar Typhimurium strain SL1344. ssaV means the strain is mutated for the secretion system type V.
+    infection_time:
+        type         : string
+        description  : number of hours elapsed after salmonella infection of macrophages.

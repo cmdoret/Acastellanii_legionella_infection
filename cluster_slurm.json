@@ -1,0 +1,12 @@
+{
+    "__default__" :
+    {
+        "queue"  : "normal",
+        "ncpus"  : 16,
+        "mem" : 16000,
+        "ntasks": 1,
+        "name"   : "Ac_assembly.{rule}.{wildcards}",
+        "output" : "logs/cluster/{rule}.{wildcards}.out",
+        "error"  : "logs/cluster/{rule}.{wildcards}.err"
+    }
+}
