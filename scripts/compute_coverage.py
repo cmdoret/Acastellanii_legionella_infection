@@ -46,9 +46,14 @@ def parse_bam(bam, chromlist, res):
     "-r",
     default=10000,
     help="Size of windows in which to compute coverage, in basepairs.",
+    show_default=True,
 )
 @click.option(
-    "--skip", "-s", default=1000, help="Stride between windows, in basepairs."
+    "--skip",
+    "-s",
+    default=1000,
+    help="Stride between windows, in basepairs.",
+    show_default=True,
 )
 @click.option(
     "--name",

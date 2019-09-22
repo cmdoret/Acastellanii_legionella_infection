@@ -157,7 +157,7 @@ rule plot_hic_coverage:
   output: join(OUT, 'plots', 'coverage_hic_{library}.pdf')
   params:
     win_size = 10000,
-    win_stride = 1
+    win_stride = 100
   shell:
     """
     python scripts/compute_coverage \
