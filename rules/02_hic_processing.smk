@@ -150,3 +150,20 @@ rule insulation_score:
       tail -n +2 |
       awk -vOFS="\t" '{{print $1,$2,$3,$5}}' > {output}
     """
+
+# 04: Visualise Hi-C coverage along genome for each library
+rule plot_hic_coverage:
+  input: join(TMP, 'bam', '{library}_hic.{end}.bam')
+  output: join(OUT, 'plots', 'coverage_hic_{library}.pdf')
+  params:
+    win_size = 10000,
+    win_stride = 1
+  shell:
+    """
+    python scripts/compute_coverage \
+      -n {wildcards.library} \
+      -s {params.win_stride} \
+      -r {params.win_size} \
+      -o {output} \
+      {input}
+    """

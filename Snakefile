@@ -44,7 +44,8 @@ rule all:
   input:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
-    join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
+    join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
+    join(OUT, 'plots', 'coverage_hic_{library}.pdf', library=samples.library)
     #join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
 
 rule aggregate_signals:

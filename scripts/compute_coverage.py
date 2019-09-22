@@ -10,14 +10,14 @@ import pysam as ps
 import click
 
 
-def parse(sam, chromlist, res):
+def parse_bam(bam, chromlist, res):
     """
-    Parse input sam or bam file and yield chromosomes one by one along with a
+    Parse input bam file and yield chromosomes one by one along with a
     rolling window mean of coverage.
 
     Parameters
     ----------
-    sam : pysam.Samfile
+    bam : pysam.Samfile
         A pysam file handle to an alignment file.
     chromlist : list of str
         A list of chromosome names to include in the analysis.
@@ -28,10 +28,10 @@ def parse(sam, chromlist, res):
         For each element in the generator, there are 3 values: The chromosome
         name, its length and an array of rolling coverage values.
     """
-    for chromo, length in zip(sam.references, sam.lengths):
+    for chromo, length in zip(bam.references, bam.lengths):
         if chromo in chromlist:
             depths = np.zeros(length + 1)
-            for base in sam.pileup(chromo, setpper="all"):
+            for base in bam.pileup(chromo, setpper="all"):
                 try:
                     depths[base.reference_pos] += base.nsegments
                 except AttributeError:
@@ -80,22 +80,22 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
     click.echo("Visualise read coverage in rolling windows from a bam file.")
     sns.set_style("white")
     scale = 1000
-    sam = ps.Samfile(bam)
+    bam_handle = ps.Samfile(bam)
     blacklist = blacklist.split(",")
     whitelist = whitelist.split(",")
     chromlist = []
     if len(whitelist[0]):
         chromlist = whitelist
     else:
-        chromlist = list(sam.references)
+        chromlist = list(bam_handle.references)
         if len(blacklist[0]):
             for chrom in blacklist:
                 chromlist.remove(chrom)
 
-    with sns.color_palette("husl", sam.nreferences):
+    with sns.color_palette("husl", bam_handle.nreferences):
         min_count, max_count = 0, 0
-        offset, chrom_id = np.zeros(len(chromlist)+1), 0
-        for chrom, length, counts in parse(sam, chromlist, res):
+        offset, chrom_id = np.zeros(len(chromlist) + 1), 0
+        for chrom, length, counts in parse_bam(bam_handle, chromlist, res):
             plt.plot(
                 (counts.index.values[::skip] + offset[chrom_id]) / scale,
                 counts[counts.columns[0]].values[::skip],
@@ -109,10 +109,15 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
                 max_count = highest
 
             plt.axvline(offset[chrom_id] / scale)
-            offset[chrom_id+1] = offset[chrom_id] + length
+            offset[chrom_id + 1] = offset[chrom_id] + length
             chrom_id += 1
     for n, chrom in enumerate(chromlist):
-            plt.text(((offset[n+1] - offset[n]) / 2 + offset[n]) / scale, 1.05 * max_count , chrom)
+        plt.text(
+            ((offset[n + 1] - offset[n]) / 2 + offset[n]) / scale,
+            1.05 * max_count,
+            chrom,
+            size=10,
+        )
     plt.xlabel("kb")
     # plt.legend()
     plt.gca().set_ylim([min_count, 1.1 * max_count])
