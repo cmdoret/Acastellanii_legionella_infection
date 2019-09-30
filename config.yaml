@@ -3,6 +3,8 @@ units: "units.tsv"
 
 reference: "data/input/genome/C3.fa"
 
+n_cpus: 12
+
 contact_maps:
   max_res: 20000
   comp_res: 160000

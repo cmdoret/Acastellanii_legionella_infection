@@ -119,7 +119,7 @@ rule chrom_sizes:
 # 02: Generate multiple resolutions and normalize mcool files 
 # (increments of factor 2)
 rule zoomify_normalize_cool:
-  input: 
+  input:
     cool = join(OUT, 'cool', '{library}.cool')
   output: join(OUT, 'cool', '{library}.mcool')
   threads: 3
@@ -151,16 +151,27 @@ rule insulation_score:
       awk -vOFS="\t" '{{print $1,$2,$3,$5}}' > {output}
     """
 
+# Merge ends of Hi-C bam files and sort by coord
+rule merge_sort_bam_ends:
+  input: expand(join(TMP, 'bam', '{{library}}_hic.{end}.bam'), end=['end1', 'end2'])
+  output: temporary(join(TMP, 'bam', '{library}_hic.merged.bam'))
+  threads: NCPUS
+  shell:
+    """
+	samtools merge -n -@ {threads} -O BAM - {input} \
+	  | samtools sort -@ {threads} -O BAM -o {output}
+    samtools index -@ {threads} {output}
+    """
 # 04: Visualise Hi-C coverage along genome for each library
 rule plot_hic_coverage:
-  input: join(TMP, 'bam', '{library}_hic.{end}.bam')
+  input: join(TMP, 'bam', '{library}_hic.merged.bam')
   output: join(OUT, 'plots', 'coverage_hic_{library}.pdf')
   params:
     win_size = 10000,
     win_stride = 100
   shell:
     """
-    python scripts/compute_coverage \
+    python scripts/compute_coverage.py \
       -n {wildcards.library} \
       -s {params.win_stride} \
       -r {params.win_size} \

@@ -25,6 +25,7 @@ TMP = join(DATA_DIR, 'tmp')
 GENOME = join(config['reference'])
 MAX_RES = config['contact_maps']['max_res']
 COMP_RES = config['contact_maps']['comp_res']
+NCPUS = config['n_cpus']
 
 wildcard_constraints:
   library = "|".join(samples.library),
@@ -45,8 +46,8 @@ rule all:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
-    join(OUT, 'plots', 'coverage_hic_{library}.pdf', library=samples.library)
-    #join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
+    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
+    join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
 
 rule aggregate_signals:
   input: 
