@@ -40,6 +40,20 @@ def parse_bam(bam, chromlist, res):
             yield chromo, length, df.rolling(window=res, center=True).mean()
 
 
+def aneuploidy_thresh(depths, ploidy=2):
+    """Compute coverage thresholds for aneuploidies based on default ploidy."""
+
+    med = np.nanmedian(depths)
+    cn_values = np.array(range(1, (2 * ploidy) + 1), dtype=np.float)
+    cov_mult = cn_values / ploidy
+    ltypes = ["", "-", "--", "-.", ":"]
+    cn_cov = {
+        f"{int(cn_values[i])}N": [med * mult, ltypes[i + 1 % len(ltypes)]]
+        for i, mult in enumerate(cov_mult)
+    }
+    return cn_cov
+
+
 @click.command()
 @click.option(
     "--res",
@@ -80,10 +94,17 @@ def parse_bam(bam, chromlist, res):
     help="Output file where to write the plot. If not provided, the plot is shown interactively",
     type=click.Path(exists=False),
 )
+@click.option(
+    "--ploidy",
+    "-p",
+    default=2,
+    help="Ploidy of input sample, used to estimate coverage threshold for aneuploidies",
+)
 @click.argument("bam", type=click.Path(exists=True))
-def covplot(bam, out, res, skip, name, blacklist, whitelist):
+def covplot(bam, out, res, skip, name, blacklist, whitelist, ploidy):
     click.echo("Visualise read coverage in rolling windows from a bam file.")
     sns.set_style("white")
+    # Factor for representing basepairs (1000 for kb)
     scale = 1000
     bam_handle = ps.Samfile(bam)
     blacklist = blacklist.split(",")
@@ -96,7 +117,7 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
         if len(blacklist[0]):
             for chrom in blacklist:
                 chromlist.remove(chrom)
-
+    all_depths = []
     with sns.color_palette("husl", bam_handle.nreferences):
         min_count, max_count = 0, 0
         offset, chrom_id = np.zeros(len(chromlist) + 1), 0
@@ -116,6 +137,8 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
             plt.axvline(offset[chrom_id] / scale)
             offset[chrom_id + 1] = offset[chrom_id] + length
             chrom_id += 1
+            all_depths.append(counts)
+    all_depths = np.concatenate(all_depths, axis=0).flatten()
     for n, chrom in enumerate(chromlist):
         plt.text(
             ((offset[n + 1] - offset[n]) / 2 + offset[n]) / scale,
@@ -123,6 +146,15 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
             chrom,
             size=10,
         )
+    aneuploidies = aneuploidy_thresh(all_depths, ploidy)
+    for aneup, cov in aneuploidies.items():
+        if aneup == str(ploidy) + "N":
+            lw = 2
+            color = "green"
+        else:
+            lw = 1
+            color = "grey"
+        plt.axhline(y=cov[0], label=aneup, ls=cov[1], lw=lw, color=color, alpha=0.5)
     plt.xlabel("kb")
     # plt.legend()
     plt.gca().set_ylim([min_count, 1.1 * max_count])
@@ -131,6 +163,7 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist):
     if len(name) == 0:
         name = os.path.splitext(os.path.basename(bam))[0]
     plt.title(name)
+    plt.legend()
     if len(out):
         plt.savefig(out)
     else:
