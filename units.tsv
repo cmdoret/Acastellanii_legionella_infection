@@ -1,3 +1,6 @@
 library	unit	libtype	fq1	fq2
 AT337	1	hic	fq/AT337.end1.fq.gz	fq/AT337.end2.fq.gz
 PM106	1	hic	fq/PM106.end1.fq.gz	fq/PM106.end2.fq.gz
+PM106	2	hic	fq/PM106_reseq.end1.fq.gz	fq/PM106_reseq.end2.fq.gz
+PM407	1	hic	fq/AT407.end1.fq.gz	fq/AT407.end2.fq.gz
+PM408	1	hic	fq/AT408.end1.fq.gz	fq/AT408.end2.fq.gz
