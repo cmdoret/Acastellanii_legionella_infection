@@ -46,9 +46,9 @@ def aneuploidy_thresh(depths, ploidy=2):
     med = np.nanmedian(depths)
     cn_values = np.array(range(1, (2 * ploidy) + 1), dtype=np.float)
     cov_mult = cn_values / ploidy
-    ltypes = ["", "-", "--", "-.", ":"]
+    ltypes = ["-", "--", "-.", ":"]
     cn_cov = {
-        f"{int(cn_values[i])}N": [med * mult, ltypes[i + 1 % len(ltypes)]]
+        f"{int(cn_values[i])}N": [med * mult, ltypes[i % len(ltypes)]]
         for i, mult in enumerate(cov_mult)
     }
     return cn_cov
@@ -94,6 +94,12 @@ def aneuploidy_thresh(depths, ploidy=2):
     help="Output file where to write the plot. If not provided, the plot is shown interactively",
     type=click.Path(exists=False),
 )
+@click.option('-t',
+    '--text',
+    default='',
+    help="Output file where to write the raw data table.",
+    type=click.Path(exists=False),
+)
 @click.option(
     "--ploidy",
     "-p",
@@ -101,7 +107,7 @@ def aneuploidy_thresh(depths, ploidy=2):
     help="Ploidy of input sample, used to estimate coverage threshold for aneuploidies",
 )
 @click.argument("bam", type=click.Path(exists=True))
-def covplot(bam, out, res, skip, name, blacklist, whitelist, ploidy):
+def covplot(bam, out, res, skip, name, blacklist, whitelist, ploidy, text):
     click.echo("Visualise read coverage in rolling windows from a bam file.")
     sns.set_style("white")
     # Factor for representing basepairs (1000 for kb)
@@ -118,15 +124,23 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist, ploidy):
             for chrom in blacklist:
                 chromlist.remove(chrom)
     all_depths = []
+    if text:
+        text_out = open(text, 'w')
     with sns.color_palette("husl", bam_handle.nreferences):
         min_count, max_count = 0, 0
         offset, chrom_id = np.zeros(len(chromlist) + 1), 0
         for chrom, length, counts in parse_bam(bam_handle, chromlist, res):
+            coverage = counts[counts.columns[0]].values[::skip] 
+            centers = counts.index.values[::skip]
             plt.plot(
-                (counts.index.values[::skip] + offset[chrom_id]) / scale,
-                counts[counts.columns[0]].values[::skip],
+                ( centers + offset[chrom_id]) / scale, coverage,
                 ".",
             )
+            # Write data as text, if requested
+            if text:
+                for bp, cov in zip(centers, coverage):
+                    if not np.isnan(cov):
+                        text_out.write(f'{chrom}\t{bp-res//2}\t{bp+res//2}\t{cov}\n')
             highest = np.max(counts.iloc[::skip, 0])
             lowest = np.min(counts.iloc[::skip, 0])
             if lowest < min_count:
@@ -138,6 +152,9 @@ def covplot(bam, out, res, skip, name, blacklist, whitelist, ploidy):
             offset[chrom_id + 1] = offset[chrom_id] + length
             chrom_id += 1
             all_depths.append(counts)
+    # Close text file, if opened
+    if text:
+        text_out.close()
     all_depths = np.concatenate(all_depths, axis=0).flatten()
     for n, chrom in enumerate(chromlist):
         plt.text(
