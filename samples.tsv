@@ -1,5 +1,9 @@
 library	condition	infection_time
 AT337	uninfected	0
-AT407	uninfected	0
-AT408	infected	5
 PM106	infected	5
+AT407	infected	5
+AT408	uninfected	0
+AT418	infected	5
+AT419	uninfected	0
+AT420	infected	5
+AT421	uninfected	0

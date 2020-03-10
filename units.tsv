@@ -4,3 +4,7 @@ PM106	1	hic	fq/PM106.end1.fq.gz	fq/PM106.end2.fq.gz
 PM106	2	hic	fq/PM106_reseq.end1.fq.gz	fq/PM106_reseq.end2.fq.gz
 PM407	1	hic	fq/AT407.end1.fq.gz	fq/AT407.end2.fq.gz
 PM408	1	hic	fq/AT408.end1.fq.gz	fq/AT408.end2.fq.gz
+AT418	1	hic	fq/AT418.end1.fq.gz	fq/AT418.end2.fq.gz
+AT419	1	hic	fq/AT419.end1.fq.gz	fq/AT419.end2.fq.gz
+AT420	1	hic	fq/AT420.end1.fq.gz	fq/AT420.end2.fq.gz
+AT421	1	hic	fq/AT421.end1.fq.gz	fq/AT421.end2.fq.gz
