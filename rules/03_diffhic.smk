@@ -8,6 +8,7 @@ rule prep_diffhic_bam:
     end1 = join(TMP, 'bam', '{library}_hic.end1.bam'),
     end2 = join(TMP, 'bam', '{library}_hic.end2.bam')
   output: temporary(join(DTMP, 'bam','{library}.bam'))
+  threads: 1
   shell: "python scripts/stitch_bams.py -1 {input.end1} -2 {input.end2} -o {output}"
 
 # Prepare input pairs format for diffHic
@@ -44,7 +45,7 @@ rule serpentine_binning:
     b = join(OUT, 'cool', "PM106.mcool")
   output: join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
   params:
-    serp_res = 20000
+    serp_res = LOW_RES
   shell:
     """
     python scripts/serpentine_analysis.py \

@@ -22,6 +22,7 @@ rule split_hic_fastq:
   message: "Splitting {wildcards.library}_{wildcards.end} into {params.n_splits} split fastq"
   singularity: "docker://cmdoret/seqkit:latest"
   conda: "../envs/hic_processing.yaml"
+  threads: 1
   shell:
      """
      mkdir -p {params.split_dir}
@@ -77,16 +78,16 @@ rule generate_pairs_cool:
   params:
     res = config['contact_maps']['max_res'],
     idx = join(TMP, 'genome')
-  threads: 12
+  threads: 1
   singularity: "docker://koszullab/hicstuff:latest"
   shell:
     """
-    hicstuff pipeline -e {params.res} \
+    hicstuff pipeline --force \
+				      -e {params.res} \
                       -g {params.idx} \
                       -o {output.hicdir} \
                       -S bam \
                       -P {wildcards.library} \
-                      -t {threads} \
                       -nD \
                       -M cool \
                       {input.bam1} \
@@ -107,7 +108,8 @@ rule chrom_sizes:
   singularity: "docker://cmdoret/hicstuff:latest"
   shell:
     """
-    hicstuff digest -e {params.res} \
+    hicstuff digest --force \
+			        -e {params.res} \
                     -o {params.digest_dir} \
                     {input}
 
@@ -123,8 +125,18 @@ rule zoomify_normalize_cool:
     cool = join(OUT, 'cool', '{library}.cool')
   output: join(OUT, 'cool', '{library}.mcool')
   threads: 3
+  params:
+      max_res = MAX_RES,
+      low_res = LOW_RES
   singularity: "docker://cmdoret/cooler:0.8.5"
-  shell: "cooler zoomify --balance --balance-args '--mad-max 10' -n {threads} {input.cool}"
+  shell:
+    """
+		cooler zoomify -r {params.max_res},{params.low_res} \
+				       --balance \
+					   --balance-args '--mad-max 10' \
+					   -n {threads} \
+					   {input.cool}
+    """
 
 # 03b: Use cooltools to compute eigenvectors on cool files and then rank and orient
 # them based on gene count in hg19 (fetched online).
@@ -132,7 +144,7 @@ rule compartments:
   input: join(OUT, 'cool', '{library}.mcool')
   output: join(OUT, 'compartments_{library}.bedgraph')
   run:
-    compartment_to_bedgraph(input[0] + '::/resolutions/' + str(COMP_RES), output[0])
+    compartment_to_bedgraph(input[0] + '::/resolutions/' + str(LOW_RES), output[0])
 
 # 03c: Compute insulation scores along the matrix (TAD boundaries) the diamond 
 # window is set to 50x50 pixels
@@ -140,8 +152,8 @@ rule insulation_score:
   input: join(OUT, 'cool', '{library}.mcool')
   output: join(OUT, 'insulation_{library}.bedgraph')
   params:
-    win_size_bp = 10 * COMP_RES,
-    res = COMP_RES
+    win_size_bp = 10 * LOW_RES,
+    res = LOW_RES
   singularity: "docker://cmdoret/cooler:0.8.5"
   shell: 
     """
@@ -165,16 +177,20 @@ rule merge_sort_bam_ends:
 # 04: Visualise Hi-C coverage along genome for each library
 rule plot_hic_coverage:
   input: join(TMP, 'bam', '{library}_hic.merged.bam')
-  output: join(OUT, 'plots', 'coverage_hic_{library}.pdf')
+  output:
+      plot = join(OUT, 'plots', 'coverage_hic_{library}.pdf'),
+	  text = join(OUT, 'cov_hic', 'coverage_hic_{library}.bedgraph')
   params:
     win_size = 10000,
     win_stride = 100
   shell:
     """
-    python scripts/compute_coverage.py \
+	tinycov covplot \
+      -N \
       -n {wildcards.library} \
       -s {params.win_stride} \
       -r {params.win_size} \
-      -o {output} \
+	  -t {output.text} \
+      -o {output.plot} \
       {input}
     """

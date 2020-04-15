@@ -6,8 +6,8 @@ reference: "data/input/genome/C3.fa"
 n_cpus: 12
 
 contact_maps:
-  max_res: 20000
-  comp_res: 160000
+  max_res: 2000
+  low_res: 20000
 
 loops:
   dist_bins:

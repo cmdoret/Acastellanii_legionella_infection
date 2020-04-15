@@ -24,7 +24,7 @@ OUT = join(DATA_DIR, 'output')
 TMP = join(DATA_DIR, 'tmp')
 GENOME = join(config['reference'])
 MAX_RES = config['contact_maps']['max_res']
-COMP_RES = config['contact_maps']['comp_res']
+LOW_RES = config['contact_maps']['low_res']
 NCPUS = config['n_cpus']
 
 wildcard_constraints:
@@ -39,15 +39,15 @@ include: 'scripts/mat_utils.py'
 # Pipeline sub-workflows
 include: 'rules/01_common.smk'
 include: 'rules/02_hic_processing.smk'
-include: 'rules/03_diffhic.smk'
+#include: 'rules/03_diffhic.smk'
 
 rule all:
   input:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
-    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
-    join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
+    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library)
+    #join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
 
 rule aggregate_signals:
   input: 
@@ -73,7 +73,7 @@ rule aggregate_signals:
         awk '{{print $4}}' > $tmp_file
     done
     
-    echo -e "chrom\tstart\tend\tcompartment_{COMP_RES}\tlog2_insulation{COMP_RES}" > {output}
+    echo -e "chrom\tstart\tend\tcompartment_{LOW_RES}\tlog2_insulation{LOW_RES}" > {output}
     paste {OUT}/bins.bed {TMP}/signal_tracks/*{wildcards.library}* >> {output}
 
     """
