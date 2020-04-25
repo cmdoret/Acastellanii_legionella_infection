@@ -138,13 +138,6 @@ rule zoomify_normalize_cool:
 					   {input.cool}
     """
 
-# 03b: Use cooltools to compute eigenvectors on cool files and then rank and orient
-# them based on gene count in hg19 (fetched online).
-rule compartments:
-  input: join(OUT, 'cool', '{library}.mcool')
-  output: join(OUT, 'compartments_{library}.bedgraph')
-  run:
-    compartment_to_bedgraph(input[0] + '::/resolutions/' + str(LOW_RES), output[0])
 
 # 03c: Compute insulation scores along the matrix (TAD boundaries) the diamond 
 # window is set to 50x50 pixels
@@ -193,4 +186,19 @@ rule plot_hic_coverage:
 	  -t {output.text} \
       -o {output.plot} \
       {input}
+    """
+
+rule serpentine_binning:
+  input:
+    a = join(OUT, 'cool', "AT421.mcool"),
+    b = join(OUT, 'cool', "AT420.mcool")
+  output: join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
+  params:
+    serp_res = LOW_RES
+  shell:
+    """
+    python scripts/serpentine_analysis.py \
+      {input.a}::/resolutions/{params.serp_res} \
+      {input.b}::/resolutions/{params.serp_res} \
+      {output}
     """

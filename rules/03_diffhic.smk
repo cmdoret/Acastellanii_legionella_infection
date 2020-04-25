@@ -39,17 +39,3 @@ rule diffhic_to_bed:
     sig = dom.loc[dom.PValue< params['threshold'], ['seqnames', 'start', 'end', 'logFC']] 
     sig.to_csv(output[0], sep='\t', index=False)
 
-rule serpentine_binning:
-  input:
-    a = join(OUT, 'cool', "AT337.mcool"),
-    b = join(OUT, 'cool', "PM106.mcool")
-  output: join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
-  params:
-    serp_res = LOW_RES
-  shell:
-    """
-    python scripts/serpentine_analysis.py \
-      {input.a}::/resolutions/{params.serp_res} \
-      {input.b}::/resolutions/{params.serp_res} \
-      {output}
-    """
