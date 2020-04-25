@@ -14,6 +14,7 @@ dependencies:
   - minimap2
   - samtools
   - pysam
+  - chromosight
   - seqkit
   - r-tidyverse
   - r-yaml
@@ -25,3 +26,4 @@ dependencies:
     - "--editable=git+https://github.com/mirnylab/bioframe.git@master#egg=bioframe-master"
     - "--editable=git+https://github.com/Phlya/coolpuppy.git@master#egg=coolpuppy-master"
     - "--editable=git+https://github.com/cmdoret/tinycov.git@master#egg=tinycov-master"
+    - "--editable=git+https://github.com/cmdoret/pareidolia.git@master#egg=pareidolia-master"
