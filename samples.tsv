@@ -1,9 +1,9 @@
-library	condition	infection_time
-AT337	uninfected	0
-PM106	infected	5
-AT407	infected	5
-AT408	uninfected	0
-AT418	infected	5
-AT419	uninfected	0
-AT420	infected	5
-AT421	uninfected	0
+library	condition	infection_time	protocol
+#AT337	uninfected	0	hic_dpnII
+PM106	infected	5	hic_arima_dpnII
+AT407	infected	5	hic_arima_dpnII
+AT408	uninfected	0	hic_arima_dpnII
+AT418	infected	5	hic_arima_dpnII
+AT419	uninfected	0	hic_arima_dpnII
+AT420	infected	5	hic_arima_dpnII
+AT421	uninfected	0	hic_arima_dpnII
