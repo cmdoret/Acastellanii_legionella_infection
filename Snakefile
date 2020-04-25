@@ -3,14 +3,17 @@
 # It orchestrates the analysis of salmonella-infected mouse macrophage.
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from os.path import join
 from snakemake.utils import validate
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 ## LOAD CONFIG FILES
 configfile: "config.yaml"
 validate(config, schema='schemas/config.schema.yaml')
 
-samples = pd.read_csv(config['samples'], sep='\t', dtype=str, comment='#').set_index(['library'], drop=False)
+samples = pd.read_csv(config['samples'], sep='\t', dtype=str, comment='#').sort_values("infection_time").set_index(['library'], drop=False)
 validate(samples, schema="schemas/samples.schema.yaml")
 
 units = pd.read_csv(config['units'], sep='\t', dtype=str, comment='#').set_index(['library', 'unit'], drop=False)
@@ -39,15 +42,19 @@ include: 'scripts/mat_utils.py'
 # Pipeline sub-workflows
 include: 'rules/01_common.smk'
 include: 'rules/02_hic_processing.smk'
-#include: 'rules/03_diffhic.smk'
+include: 'rules/04_pattern_detection.smk'
 
 rule all:
   input:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
-    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library)
-    #join(OUT, 'diffhic', 'sig_diff_domain_boundaries.bed')
+    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
+    expand(
+        join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'),
+        pattern=['loops', 'borders']
+    ),
+    expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders'])
 
 rule aggregate_signals:
   input: 
