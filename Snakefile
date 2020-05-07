@@ -43,6 +43,7 @@ include: 'scripts/mat_utils.py'
 include: 'rules/01_common.smk'
 include: 'rules/02_hic_processing.smk'
 include: 'rules/04_pattern_detection.smk'
+include: 'rules/05_annotations_analysis.smk'
 
 rule all:
   input:
@@ -50,11 +51,9 @@ rule all:
     expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
     expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
-    expand(
-        join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'),
-        pattern=['loops', 'borders']
-    ),
-    expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders'])
+    expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
+    expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders'])
+
 
 rule aggregate_signals:
   input: 
