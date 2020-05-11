@@ -55,7 +55,6 @@ weight.stat <- new(
 )
 resultWeight <- getSigGroups(GOdata, weight.stat)
 
-#showSigOfNodes(GOdata, score(resultWeight), firstSigNodes = 9, useInfo = 'all')
 
 # Get 'significant' terms
 pvals <- score(resultWeight)
@@ -75,6 +74,7 @@ allRes <- GenTable(
 
 write_tsv(allRes, out_tbl)
 
+allRes$GO.ID <- paste(allRes$GO.ID, allRes$Term, sep=' - ')
 tidy_res = as.tibble(allRes) %>%
   mutate(
     weight = as.numeric(weight),
@@ -82,8 +82,9 @@ tidy_res = as.tibble(allRes) %>%
     GO.ID = factor(GO.ID, ordered=T, levels=unique(GO.ID[ordered(weight)]))
   )
 
+pattern = strsplit(basename(out_fig), '_')[[1]][1]
 # Visualise top enriched GO terms
-svg(out_fig)
+svg(out_fig, width=13, height=9)
 ggplot(data=tidy_res %>% top_n(30, -weight), 
   aes(x=GO.ID, y=-log10(weight))) + 
   geom_segment(aes(xend=GO.ID, yend=min(-log10(weight))), size=1.1) +
@@ -92,12 +93,9 @@ ggplot(data=tidy_res %>% top_n(30, -weight),
   theme_minimal() + 
   xlab("") +
   ylab("-log10 pvalue") +
-  ggtitle("GO enrichment test in HGT candidates\n(Fisher exact test, weight algorithm)") +
+  ggtitle(sprintf("GO enrichment test at infection-dependent %s\n(Fisher exact test, weight algorithm)", pattern)) +
   scale_color_viridis() +
   coord_flip() +
   theme(text=element_text(family="Liberation", size=12))
 
-dev.off()
-svg('nodes.svg')
-showSigOfNodes(GOdata, pvals, firstSigNodes = 3, useInfo ='all')
 dev.off()

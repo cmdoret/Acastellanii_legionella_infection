@@ -40,7 +40,6 @@ rule detect_patterns:
         chromosight detect \
             --no-plotting \
             --pattern {wildcards.pattern} \
-            --full \
             --win-fmt npy \
             --threads {threads} \
             --min-separation {params.min_sep} \
@@ -91,6 +90,8 @@ rule quantify_pattern_scores:
                              --pattern {wildcards.pattern} \
                              --win-fmt npy \
                              --subsample $(cat {input.subsample}) \
+                             --max-perc-undetected 75 \
+                             --max-perc-zero 100 \
                              $(dirname {output.coords})
         """
 
