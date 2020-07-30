@@ -30,13 +30,15 @@ rule merge_matrices:
 rule detect_patterns:
     input: join(OUT, 'cool', 'all_merged.cool')
     output:
-        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.txt'),
+        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv'),
         wins = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.npy')
     threads: 4
     params:
         min_sep = 5 * MAX_RES
     shell:
         """
+        out_prefix={output.coords}
+        out_prefix=${{out_prefix%*.tsv}}
         chromosight detect \
             --no-plotting \
             --pattern {wildcards.pattern} \
@@ -46,7 +48,7 @@ rule detect_patterns:
             --min-separation {params.min_sep} \
             --iterations 1 \
             {input} \
-            $(dirname {output.coords})
+            $out_prefix
         """
 
 # Matrices must be subsampled to the same coverage for loop scores to be 
@@ -76,28 +78,30 @@ rule find_subsampling_value:
 rule quantify_pattern_scores:
     input:
         cool = join(OUT, 'cool', '{library}.mcool'),
-        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.txt'),
+        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv'),
         subsample = join(OUT, 'chromosight', 'target_contacts.txt')
     output:
-        coords = join(OUT, 'chromosight', '{library}', '{pattern}_quant.txt'),
+        coords = join(OUT, 'chromosight', '{library}', '{pattern}_quant.tsv'),
         wins = join(OUT, 'chromosight', '{library}', '{pattern}_quant.npy')
     params:
         res = MAX_RES
     shell:
         """
+        out_prefix={output.coords}
+        out_prefix=${{out_prefix%*.tsv}}
         chromosight quantify {input.coords} \
                              {input.cool}::/resolutions/{params.res} \
                              --no-plotting \
                              --pattern {wildcards.pattern} \
                              --win-fmt npy \
                              --subsample $(cat {input.subsample}) \
-                             $(dirname {output.coords})
+                             $out_prefix
         """
 
 rule pattern_change:
     input:
         mcools = expand( join(OUT, 'cool', '{library}.mcool'), library=samples.library),
-        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.txt')
+        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv')
     output: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
     params:
         condition = samples.infection_time.tolist(),
@@ -105,7 +109,7 @@ rule pattern_change:
     script: '../scripts/pattern_changes.py'
 
 rule plot_patterns_scores:
-    input: scores = expand(join(OUT, 'chromosight', '{library}', '{{pattern}}_quant.txt'), library=samples.library)
+    input: scores = expand(join(OUT, 'chromosight', '{library}', '{{pattern}}_quant.tsv'), library=samples.library)
     output: join(OUT, 'plots', '{pattern}_scores.svg')
     threads: 1
     run:
