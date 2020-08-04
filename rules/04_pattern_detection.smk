@@ -42,7 +42,6 @@ rule detect_patterns:
         chromosight detect \
             --no-plotting \
             --pattern {wildcards.pattern} \
-            --full \
             --win-fmt npy \
             --threads {threads} \
             --min-separation {params.min_sep} \
@@ -106,6 +105,7 @@ rule pattern_change:
     params:
         condition = samples.infection_time.tolist(),
         res = MAX_RES
+    conda: '../envs/hic_processing.yaml'
     script: '../scripts/pattern_changes.py'
 
 rule plot_patterns_scores:
