@@ -1,10 +1,11 @@
 #!/bin/env snakemake -s
 # This file can be run using snakemake. It was tested on snakemake 5.3
 # It orchestrates the analysis of salmonella-infected mouse macrophage.
+from os.path import join
+import itertools as it
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from os.path import join
 from snakemake.utils import validate
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -42,6 +43,7 @@ include: 'scripts/mat_utils.py'
 # Pipeline sub-workflows
 include: 'rules/01_common.smk'
 include: 'rules/02_hic_processing.smk'
+include: 'rules/02a_hic_reproducibility.smk'
 include: 'rules/04_pattern_detection.smk'
 include: 'rules/05_annotations_analysis.smk'
 
@@ -52,7 +54,8 @@ rule all:
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
     expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
     expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
-    expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders'])
+    expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders']),
+    join(OUT, 'hicrep', 'hicrep_mat.tsv')
 
 
 rule aggregate_signals:
