@@ -127,11 +127,12 @@ rule zoomify_normalize_cool:
   threads: 3
   params:
       max_res = MAX_RES,
+      med_res = MED_RES,
       low_res = LOW_RES
   singularity: "docker://cmdoret/cooler:0.8.5"
   shell:
     """
-		cooler zoomify -r {params.max_res},{params.low_res} \
+		cooler zoomify -r {params.max_res},{params.med_res},{params.low_res} \
 				       --balance \
 					   --balance-args '--mad-max 10' \
 					   -n {threads} \
