@@ -28,6 +28,7 @@ OUT = join(DATA_DIR, 'output')
 TMP = join(DATA_DIR, 'tmp')
 GENOME = join(config['reference'])
 MAX_RES = config['contact_maps']['max_res']
+MED_RES = config['contact_maps']['med_res']
 LOW_RES = config['contact_maps']['low_res']
 NCPUS = config['n_cpus']
 

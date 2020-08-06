@@ -2,7 +2,7 @@
 # using HiCrep
 # cmdoret, 20190930
 
-MAXDIST = 50000
+MAXDIST = 100000
 
 # Use two maps from replicates with best sequencing depth to select best h 
 # value for future hicrep runs (PM125 vs PM54)
@@ -13,7 +13,7 @@ rule select_h_param:
     output: join(OUT, 'hicrep', 'best_h_value.txt')
     params:
         maxdist= MAXDIST,
-        res = MAX_RES
+        res = MED_RES
     shell:
         """
         hicreppy htrain \
@@ -37,7 +37,7 @@ rule run_hicrep:
     output: join(TMP, 'hicrep', '{library1}_{library2}_corrcoef.txt')
     params:
         max_dist = MAXDIST,
-        res = MAX_RES
+        res = MED_RES
     shell:
         """
         hicreppy scc \
