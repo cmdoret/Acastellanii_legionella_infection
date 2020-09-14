@@ -7,6 +7,7 @@ rule bt2_index:
   params:
     idx = join(TMP, 'genome')
   singularity: "docker://koszullab/hicstuff:latest"
+  conda: "../envs/hic_processing.yaml"
   shell: "bowtie2-build {input} {params.idx}"
 
 # Make splits from Hi-C fastq files to speed up mapping. [between 1 and 999]
@@ -45,6 +46,7 @@ rule split_align_hic:
     bt2_presets = config['params']['bowtie2']
   threads: 12
   singularity: "docker://cmdoret/hicstuff:latest"
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
     bowtie2 {params.bt2_presets} \
@@ -64,37 +66,53 @@ rule merge_split_alignments:
   output: join(TMP, 'bam', '{library}_hic.{end}.bam')
   threads: 12
   singularity: "docker://biocontainers/samtools:v1.7.0_cv4"
+  conda: "../envs/hic_processing.yaml"
   shell: "samtools merge -n -O BAM -@ {threads} {output} {input}"
 
 ## 00 Generate Hi-C pairs files
-rule generate_pairs_cool:
+rule generate_pairs:
   input:
     bam1 = join(TMP, 'bam', "{library}_hic.end1.bam"),
     bam2 = join(TMP, 'bam', "{library}_hic.end2.bam")
   output:
     hicdir = directory(join(TMP, 'hicstuff', '{library}')),
-    pairs = join(TMP, 'pairs', '{library}.pairs'),
-    cool = join(OUT, 'cool', '{library}.cool')
+    pairs = join(TMP, 'pairs', '{library}.pairs')
   params:
-    res = config['contact_maps']['max_res'],
+    enz = 'DpnII',
     idx = join(TMP, 'genome')
   threads: 1
   singularity: "docker://koszullab/hicstuff:latest"
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
     hicstuff pipeline --force \
-				      -e {params.res} \
+				              -e {params.enz} \
                       -g {params.idx} \
                       -o {output.hicdir} \
                       -S bam \
                       -P {wildcards.library} \
                       -nD \
-                      -M cool \
                       {input.bam1} \
                       {input.bam2}
 
     cp {output.hicdir}/tmp/{wildcards.library}.valid_idx_pcrfree.pairs {output.pairs}
-    cp {output.hicdir}/{wildcards.library}.cool {output.cool}
+    """
+
+# Convert pairs to cool
+rule pairs_to_cool:
+  input:
+    chroms = join(TMP, "chrom.sizes"),
+    pairs = join(TMP, 'pairs', '{library}.pairs')
+  output: join(OUT, 'cool', '{library}.cool')
+  params:
+    res = config['contact_maps']['max_res']
+  conda: "../envs/hic_processing.yaml"
+  shell:
+    """
+    cooler cload pairs -c1 2 -p1 3 -c2 4 -p2 5 \
+                       {input.chroms}:{params.res} \
+                       {input.pairs} {output}
+                       
     """
 
 # 00: Generate chrom sizes file
@@ -106,12 +124,13 @@ rule chrom_sizes:
     res = MAX_RES,
     digest_dir = join(TMP, 'digest')
   singularity: "docker://cmdoret/hicstuff:latest"
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
     hicstuff digest --force \
 			        -e {params.res} \
-                    -o {params.digest_dir} \
-                    {input}
+              -o {params.digest_dir} \
+              {input}
 
     tail -n +2 {params.digest_dir}/info_contigs.txt \
       | awk -vOFS='\t' '{{print $1,$2}}' \
@@ -130,6 +149,7 @@ rule zoomify_normalize_cool:
       med_res = MED_RES,
       low_res = LOW_RES
   singularity: "docker://cmdoret/cooler:0.8.5"
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
 		cooler zoomify -r {params.max_res},{params.med_res},{params.low_res} \
@@ -202,4 +222,12 @@ rule serpentine_binning:
       {input.a}::/resolutions/{params.serp_res} \
       {input.b}::/resolutions/{params.serp_res} \
       {output}
+    """
+
+rule compute_genomic_distance_law:
+  input: join(TMP, 'pairs', '{library}.pairs')
+  output: join(TMP, 'distance_law', '{library}_ps.tsv')
+  shell:
+    """
+    hicstuff distancelaw -f --pairs {input} -O {output}
     """

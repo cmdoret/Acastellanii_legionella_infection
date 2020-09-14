@@ -51,7 +51,6 @@ include: 'rules/05_annotations_analysis.smk'
 rule all:
   input:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
-    expand(join(OUT, 'all_signals_{library}.bedgraph'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
     expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
     expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
@@ -59,31 +58,3 @@ rule all:
     join(OUT, 'hicrep', 'hicrep_mat.tsv')
 
 
-rule aggregate_signals:
-  input: 
-    comp = join(OUT, 'compartments_{library}.bedgraph'),
-    insul = join(OUT, 'insulation_{library}.bedgraph'),
-    chroms = join(TMP, 'chrom.sizes'),
-  output: join(OUT, 'all_signals_{library}.bedgraph')
-  shell:
-    """
-    mkdir -p {TMP}/signal_tracks
-
-    # Generate output bins as a bed file
-    bedtools makewindows -w {MAX_RES} \
-                         -g {input.chroms} \
-                         > {OUT}/bins.bed
-    
-    # Intersect each signal with fixed output bins
-    # Group overlapping bins and average signal for each group
-    for in_file in {input.comp} {input.insul}; do
-      tmp_file={TMP}/signal_tracks/$(basename $in_file)
-      bedtools intersect -a $in_file -b {OUT}/bins.bed -wb |
-        bedtools groupby -g 1,2,3 -c 4 -o mean 2> /dev/null |
-        awk '{{print $4}}' > $tmp_file
-    done
-    
-    echo -e "chrom\tstart\tend\tcompartment_{LOW_RES}\tlog2_insulation{LOW_RES}" > {output}
-    paste {OUT}/bins.bed {TMP}/signal_tracks/*{wildcards.library}* >> {output}
-
-    """
