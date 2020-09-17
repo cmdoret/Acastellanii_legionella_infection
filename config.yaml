@@ -2,6 +2,7 @@ samples: "samples.tsv"
 units: "units.tsv"
 
 reference: "data/input/genome/C3.fa"
+enzyme: "DpnII"
 
 n_cpus: 12
 

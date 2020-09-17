@@ -27,6 +27,7 @@ IN = join(DATA_DIR, 'input')
 OUT = join(DATA_DIR, 'output')
 TMP = join(DATA_DIR, 'tmp')
 GENOME = join(config['reference'])
+ENZ = config["enzyme"]
 MAX_RES = config['contact_maps']['max_res']
 MED_RES = config['contact_maps']['med_res']
 LOW_RES = config['contact_maps']['low_res']
@@ -52,9 +53,10 @@ rule all:
   input:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
-    expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
+    #expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
     expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
     expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders']),
-    join(OUT, 'hicrep', 'hicrep_mat.tsv')
+    join(OUT, 'hicrep', 'hicrep_mat.tsv'),
+    join(OUT, 'plots', 'distance_law_infection.svg')
 
 
