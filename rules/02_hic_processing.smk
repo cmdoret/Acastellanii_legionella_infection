@@ -78,7 +78,7 @@ rule generate_pairs:
     hicdir = directory(join(TMP, 'hicstuff', '{library}')),
     pairs = join(TMP, 'pairs', '{library}.pairs')
   params:
-    enz = 'DpnII',
+    enz = ENZ,
     idx = join(TMP, 'genome')
   threads: 1
   singularity: "docker://koszullab/hicstuff:latest"
@@ -105,7 +105,7 @@ rule pairs_to_cool:
     pairs = join(TMP, 'pairs', '{library}.pairs')
   output: join(OUT, 'cool', '{library}.cool')
   params:
-    res = config['contact_maps']['max_res']
+    res = MAX_RES
   conda: "../envs/hic_processing.yaml"
   shell:
     """
@@ -115,24 +115,31 @@ rule pairs_to_cool:
                        
     """
 
-# 00: Generate chrom sizes file
-rule chrom_sizes:
+rule digest_genome:
   input: join(TMP, 'filtered_ref.fa')
-  output: join(TMP, "chrom.sizes")
+  output:
+    tigs = join(TMP, 'digest', 'info_contigs.txt'),
+    frags = join(TMP, 'digest', 'fragments_list.txt')
   params:
-    genome = join(TMP, 'filtered_ref.fa'),
-    res = MAX_RES,
-    digest_dir = join(TMP, 'digest')
-  singularity: "docker://cmdoret/hicstuff:latest"
+    enz = ENZ
   conda: "../envs/hic_processing.yaml"
   shell:
     """
     hicstuff digest --force \
-			        -e {params.res} \
-              -o {params.digest_dir} \
+			        -e {params.enz} \
+              -o $(dirname {output.frags}) \
               {input}
+    """
 
-    tail -n +2 {params.digest_dir}/info_contigs.txt \
+# 00: Generate chrom sizes file
+rule chrom_sizes:
+  input:
+    ref = join(TMP, 'filtered_ref.fa'),
+    tigs = join(TMP, 'digest', 'info_contigs.txt')
+  output: join(TMP, "chrom.sizes")
+  shell:
+    """
+    tail -n +2 {input.tigs} \
       | awk -vOFS='\t' '{{print $1,$2}}' \
       > {output}
     """
@@ -190,13 +197,14 @@ rule merge_sort_bam_ends:
     """
 # 04: Visualise Hi-C coverage along genome for each library
 rule plot_hic_coverage:
-  input: join(TMP, 'bam', '{library}_hic.merged.bam')
+  input: join(TMP, 'bam', '{library}_hic.end1.bam')
   output:
       plot = join(OUT, 'plots', 'coverage_hic_{library}.pdf'),
 	  text = join(OUT, 'cov_hic', 'coverage_hic_{library}.bedgraph')
   params:
-    win_size = 10000,
-    win_stride = 100
+    win_size = 100000,
+    win_stride = 10000
+  threads: 12
   shell:
     """
 	tinycov covplot \
@@ -204,7 +212,7 @@ rule plot_hic_coverage:
       -n {wildcards.library} \
       -s {params.win_stride} \
       -r {params.win_size} \
-	  -t {output.text} \
+	    -t {output.text} \
       -o {output.plot} \
       {input}
     """
@@ -225,9 +233,26 @@ rule serpentine_binning:
     """
 
 rule compute_genomic_distance_law:
-  input: join(TMP, 'pairs', '{library}.pairs')
-  output: join(TMP, 'distance_law', '{library}_ps.tsv')
+  input: 
+    pairs = join(TMP, 'pairs', '{library}.pairs'),
+    frags = join(TMP, 'digest', 'fragments_list.txt')
+  output:
+    tbl = join(TMP, 'distance_law', '{library}_ps.tsv'),
+    plt = temp(join(TMP, 'distance_law', '{library}_ps.svg'))
   shell:
     """
-    hicstuff distancelaw -f --pairs {input} -O {output}
+    hicstuff distancelaw -a \
+                         -i 1000 \
+                         -f {input.frags} \
+                         --pairs {input.pairs} \
+                         -O {output.tbl} \
+                         -o {output.plt}
     """
+
+rule plot_distance_law:
+  input: expand(join(TMP, 'distance_law', '{library}_ps.tsv'), library=samples.library)
+  output: join(OUT, 'plots', 'distance_law_infection.svg')
+  run:
+    inputs = ','.join(input[:])
+    names = ','.join(samples.library.values.tolist())
+    shell(f"hicstuff distancelaw -a -l {names} -o {output[0]} --dist-tbl='{inputs}'")

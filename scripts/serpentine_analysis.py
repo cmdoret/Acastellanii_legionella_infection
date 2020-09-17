@@ -34,7 +34,12 @@ threshold = mdthreshold
 minthreshold = threshold / 5.0
 
 sA, sB, sK = sp.serpentin_binning(
-    A, B, threshold=threshold, minthreshold=minthreshold, triangular=False, parallel=2
+    A,
+    B,
+    threshold=threshold,
+    minthreshold=minthreshold,
+    triangular=True,
+    parallel=2,
 )
 
 sp.serpentine._plot(sA, sB, sK - mdtrend, triangular=False, limit=3)
