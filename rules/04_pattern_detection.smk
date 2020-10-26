@@ -34,7 +34,9 @@ rule detect_patterns:
         wins = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.npy')
     threads: 4
     params:
-        min_sep = 5 * MAX_RES
+        min_sep = 5 * MAX_RES,
+        min_dist = lambda w: config[w.pattern]['min-dist'],
+        max_dist = lambda w: config[w.pattern]['max-dist']
     shell:
         """
         out_prefix={output.coords}
@@ -45,6 +47,8 @@ rule detect_patterns:
             --win-fmt npy \
             --threads {threads} \
             --min-separation {params.min_sep} \
+            --min-dist {params.min_dist} \
+            --max-dist {params.max_dist} \
             --iterations 1 \
             {input} \
             $out_prefix

@@ -11,11 +11,13 @@ contact_maps:
   med_res : 8000
   low_res: 20000
 
-loops:
-  dist_bins:
-    - 100000
-    - 2000000
-    - 20000000
+loops_small:
+    min-dist: 8000
+    max-dist: 2000000
+
+borders:
+    min-dist: 0
+    max-dist: 0
 
 params:
   hicstuff_iteralign: "--read-len 150 --aligner bowtie2"

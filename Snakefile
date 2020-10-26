@@ -54,8 +54,8 @@ rule all:
     expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
     #expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
-    expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
-    expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders']),
+    expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops_small', 'borders']),
+    expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops_small', 'borders']),
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
     join(OUT, 'plots', 'distance_law_infection.svg')
 

@@ -7,8 +7,8 @@ cmdoret, 20200415
 
 # Format infection-dependent loops into BED, with 1 anchor / line
 rule loop_change_to_bed:
-    input: join(OUT, 'pareidolia', 'loops_change_infection_time.tsv')
-    output: temp(join(OUT, 'pareidolia', 'loops_change_infection_time.bed'))
+    input: join(OUT, 'pareidolia', 'loops_small_change_infection_time.tsv')
+    output: temp(join(OUT, 'pareidolia', 'loops_small_change_infection_time.bed'))
     shell:
         """
         cat <(cut -f1-3,9 {input} | tail -n+2) \
