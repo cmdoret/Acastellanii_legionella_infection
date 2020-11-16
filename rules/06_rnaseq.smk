@@ -20,13 +20,15 @@ rule download_neff:
 rule liftover_annotations:
     output: join(TMP, 'liftoff', 'neff_c3_liftover.gff')
     params:
-        neff_fa = config['neff']['genome']
-        neff_annot = config['neff']['annot']
+        neff_fa = config['neff']['genome'],
+        neff_annot = config['neff']['annot'],
         c3_fa = GENOME
     conda: '../envs/liftoff.yaml'
+    threads: NCPUS
     shell:
         """
         liftoff -g {params.neff_annot} \
+            -p {threads} \
             -o {output} \
             {params.c3_fa} \
             {params.neff_fa}
@@ -57,7 +59,7 @@ rule map_neff_c3_identifiers:
 # Use the liftover to map gene identifiers from Neff to C3
 rule convert_identifiers:
     input: join(TMP, 'liftoff', 'neff_c3_gene_mapping.tsv')
-    output:
+    output: join(OUT, 'diff_expr', 'de_genes.tsv')
     params:
         de_genes = config['de_genes']
     run:

@@ -7,7 +7,7 @@ enzyme: "DpnII"
 
 neff:
   genome: 'data/input/genome/NEFF_v1.fa'
-  annot: 'data/input/genome/NEFF_v1.43.gff'
+  annot: 'data/input/annotations/NEFF_v1.43.gff'
 
 n_cpus: 12
 

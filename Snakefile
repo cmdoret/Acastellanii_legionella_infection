@@ -48,6 +48,7 @@ include: 'rules/02_hic_processing.smk'
 include: 'rules/02a_hic_reproducibility.smk'
 include: 'rules/04_pattern_detection.smk'
 include: 'rules/05_annotations_analysis.smk'
+include: 'rules/06_rnaseq.smk'
 
 rule all:
   input:
@@ -57,6 +58,7 @@ rule all:
     expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops_small', 'borders']),
     expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops_small', 'borders']),
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
-    join(OUT, 'plots', 'distance_law_infection.svg')
+    join(OUT, 'plots', 'distance_law_infection.svg'),
+    join(OUT, 'diff_expr', 'de_genes.tsv')
 
 
