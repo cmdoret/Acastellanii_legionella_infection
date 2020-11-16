@@ -1,0 +1,13 @@
+name: genomepy
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - genomepy=0.5.2
+  - ncurses=6.2
+  - pip=20.2.4
+  - python=3.6.12
+  - ucsc-bedtogenepred=357=1
+  - ucsc-genepredtobed=357=1
+  - ucsc-genepredtogtf=357=1
+  - ucsc-gtftogenepred=357=1

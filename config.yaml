@@ -2,7 +2,12 @@ samples: "samples.tsv"
 units: "units.tsv"
 
 reference: "data/input/genome/C3.fa"
+annot: "data/input/annotations/c3_annotations/Acanthamoeba_castellanii.gff3"
 enzyme: "DpnII"
+
+neff:
+  genome: 'data/input/genome/NEFF_v1.fa'
+  annot: 'data/input/genome/NEFF_v1.43.gff'
 
 n_cpus: 12
 
@@ -18,6 +23,8 @@ loops_small:
 borders:
     min-dist: 0
     max-dist: 0
+
+de_genes: "data/input/diff_expr/li2020_uninfected_vs_wt_8h.tsv"
 
 params:
   hicstuff_iteralign: "--read-len 150 --aligner bowtie2"
