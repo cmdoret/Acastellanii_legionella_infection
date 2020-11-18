@@ -17,14 +17,14 @@ contact_maps:
   low_res: 20000
 
 loops_small:
-    min-dist: 8000
+    min-dist: 4000
     max-dist: 2000000
 
 borders:
     min-dist: 0
     max-dist: 0
 
-de_genes: "data/input/diff_expr/li2020_uninfected_vs_wt_8h.tsv"
+rnaseq: "data/input/diff_expr/li2020_table2.xlsx"
 
 params:
   hicstuff_iteralign: "--read-len 150 --aligner bowtie2"
