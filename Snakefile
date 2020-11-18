@@ -2,6 +2,7 @@
 # This file can be run using snakemake. It was tested on snakemake 5.3
 # It orchestrates the analysis of salmonella-infected mouse macrophage.
 from os.path import join
+import re
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -59,6 +60,7 @@ rule all:
     expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops_small', 'borders']),
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
     join(OUT, 'plots', 'distance_law_infection.svg'),
-    join(OUT, 'diff_expr', 'de_genes.tsv')
+    join(OUT, 'diff_expr', 'de_genes.tsv'),
+    join(OUT, 'diff_expr', 'expr_vs_time.tsv')
 
 

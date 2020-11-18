@@ -37,15 +37,17 @@ rule annot_to_bed:
         > {output}
         """
 
-# Intersect genes with infection-dependent patterns
-rule bed_inter_genes:
+# Report the closest gene to each infection-dependent pattern
+rule bed_closest_genes:
     input:
         change = join(OUT, 'pareidolia', '{pattern}_change_infection_time.bed'),
         genes = join(TMP, 'genes.bed')
     output: join(OUT, 'pareidolia', '{pattern}_diff_genes.bed')
     shell:
         """
-        bedtools intersect -wo -a {input.change} -b {input.genes} \
+        bedtools closest \
+            -a <(sort -k1,1 -k2,2n {input.change}) \
+            -b <(sort -k1,1 -k2,2n {input.genes}) \
         | awk 'BEGIN{{OFS="\t"}}{{print $5,$6,$7,$9,$4,$8}}' \
         > {output}
         """
