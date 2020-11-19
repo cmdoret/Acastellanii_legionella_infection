@@ -16,7 +16,7 @@ contact_maps:
   med_res : 8000
   low_res: 20000
 
-loops_small:
+loops:
     min-dist: 4000
     max-dist: 2000000
 
