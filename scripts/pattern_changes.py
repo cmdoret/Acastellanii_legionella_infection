@@ -13,8 +13,10 @@ pattern_out = pah.change_detection_pipeline(
     kernel=pattern,
     bed2d_file=bed2d,
     subsample=True,
-    percentile_thresh=95,
-    n_cpus=8
+    density_thresh=None,
+    pearson_thresh=0.0,
+    snr_thresh=0.0,
+    n_cpus=8,
 )
 
 pattern_out.to_csv(snakemake.output[0], sep='\t', index=False)

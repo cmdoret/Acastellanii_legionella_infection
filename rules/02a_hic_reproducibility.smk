@@ -56,7 +56,7 @@ rule hicrep_matrix:
     input: expand(join(TMP, 'hicrep', '{libcombo[0]}_{libcombo[1]}_corrcoef.txt'), libcombo=it.combinations(samples.library, 2))
     output: join(OUT, 'hicrep', 'hicrep_mat.tsv')
     params:
-        heatmap = join(OUT, 'plots', 'hicrep_mat.svg'),
+        heatmap = join(OUT, 'plots', 'hicrep_mat.pdf'),
         script = join('scripts', 'hicrep_to_mat.R'),
         samples = config['samples']
     conda: '../envs/r_env.yaml'

@@ -27,10 +27,10 @@ rule border_change_to_bed:
 rule annot_to_bed:
     output: temp(join(TMP, 'genes.bed'))
     params:
-        genes = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii.annotations.txt')
+        genes = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt')
     shell:
         """
-        paste <(cut -f3-6 {params.genes}) \
+        paste <(cut -f4-6 {params.genes}) \
               <(cut -f1 {params.genes}) \
         | sed 's/\t$/\t./' \
         | tail -n+2 \
@@ -56,7 +56,7 @@ rule bed_closest_genes:
 rule go_enrich_change:
     input:
         change = join(OUT, 'pareidolia', '{pattern}_diff_genes.bed'),
-        annot = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii.annotations.txt')
+        annot = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt')
     output:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
         tbl = join(OUT, 'go_enrich', '{pattern}_diff_go_enrich.tsv')

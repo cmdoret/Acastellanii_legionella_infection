@@ -46,6 +46,6 @@ corr_samples <- corr_tbl %>%
 sample_annot <- column_to_rownames(samples, 'library') %>%
   select("condition", "infection_time")
 
-svg(heatmap, width=15, height=12)
+pdf(heatmap, width=15, height=12)
 pheatmap(xtabs(data=corr_samples, "scc ~ lib1 + lib2"), annotation_col=sample_annot)
 dev.off()

@@ -9,10 +9,10 @@ library(viridis)
 args <- commandArgs(trailingOnly=T)
 
 # Extract gene IDs and GO terms.
-annot_tbl <- read_tsv(args[1], col_types='ccciiccccccccccccccc')
+annot_tbl <- read_tsv(args[1], col_types='cccciicccccccccccccc')
 select_genes <- read_tsv(
     args[2],
-    col_names=c("chrom", "start", "end", "name", "score", "strand")
+    col_names=c("chrom", "start", "end", "strand", "score", "name")
   ) %>%
   pull(name)
 
@@ -23,6 +23,7 @@ tmp_mapfile <- paste(dirname(out_fig), 'id2go.tsv', sep='/')
 # Write geneID - GO terms mapping to file
 annot_tbl %>%
   dplyr::select(GeneID, `GO Terms`) %>%
+  mutate(`GO Terms` = gsub('GO_[a-z]*: (GO:[0-9]+) - [^;]*', '\\1', `GO Terms`)) %>%
   mutate(`GO Terms` = str_replace_all(`GO Terms`, ";", ", ")) %>%
   write_tsv(tmp_mapfile)
 

@@ -31,4 +31,4 @@ rule filter_genome:
     min_len = 100000
   singularity: "docker://cmdoret/seqkit:latest"
   conda: "../envs/hic_processing.yaml"
-  shell: "seqkit seq -m {params.min_len} -o {output} {input}"
+  shell: "seqkit seq -m {params.min_len} -o - {input} > {output}"

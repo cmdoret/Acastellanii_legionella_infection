@@ -83,17 +83,19 @@ rule generate_pairs:
   threads: 1
   singularity: "docker://koszullab/hicstuff:latest"
   conda: "../envs/hic_processing.yaml"
+  log: "logs/hicstuff/{library}.log"
   shell:
     """
     hicstuff pipeline --force \
-				              -e {params.enz} \
+                      -e {params.enz} \
                       -g {params.idx} \
                       -o {output.hicdir} \
                       -S bam \
+                      --filter \
                       -P {wildcards.library} \
                       -nD \
                       {input.bam1} \
-                      {input.bam2}
+                      {input.bam2} 2> {log}
 
     cp {output.hicdir}/tmp/{wildcards.library}.valid_idx_pcrfree.pairs {output.pairs}
     """
