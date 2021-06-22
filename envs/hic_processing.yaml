@@ -20,10 +20,10 @@ dependencies:
   - r-yaml
   - r-optparse
   - pip:
-    - "--editable=git+https://github.com/mirnylab/cooltools.git@master#egg=cooltools-master"
-    - "--editable=git+https://github.com/mirnylab/cooler.git@master#egg=cooler-master"
-    - "--editable=git+https://github.com/koszullab/hicstuff.git@master#egg=hicstuff-master"
-    - "--editable=git+https://github.com/mirnylab/bioframe.git@master#egg=bioframe-master"
-    - "--editable=git+https://github.com/Phlya/coolpuppy.git@master#egg=coolpuppy-master"
-    - "--editable=git+https://github.com/cmdoret/tinycov.git@master#egg=tinycov-master"
-    - "--editable=git+https://github.com/cmdoret/pareidolia.git@master#egg=pareidolia-master"
+    - cooltools
+    - cooler
+    - hicstuff
+    - bioframe
+    - coolpuppy
+    - tinycov
+    - "--editable=git+https://github.com/koszullab/pareidolia.git@master#egg=pareidolia-master"

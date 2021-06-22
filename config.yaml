@@ -2,7 +2,7 @@ samples: "samples.tsv"
 units: "units.tsv"
 
 reference: "data/input/genome/C3.fa"
-annot: "data/input/annotations/c3_annotations/Acanthamoeba_castellanii.gff3"
+annot: "data/input/annotations/c3_annotations/Acanthamoeba_castellanii_C3.gff3"
 enzyme: "DpnII"
 
 neff:

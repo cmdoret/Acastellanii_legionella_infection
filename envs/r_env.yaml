@@ -7,9 +7,9 @@ dependencies:
   - bioconductor-topgo
   - bioconductor-rgraphviz
   - fonts-anaconda
-  - r-base=3.6.1
+  - r-base
   - r-pheatmap
-  - r-tidyverse=1.2.1
+  - r-tidyverse
   - r-viridis
   - r-viridislite
   - r-yaml
