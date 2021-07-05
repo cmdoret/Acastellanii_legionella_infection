@@ -16,6 +16,7 @@ select_genes <- read_tsv(
   ) %>%
   pull(name)
 
+
 out_fig <- args[3]
 out_tbl <- args[4]
 tmp_mapfile <- paste(dirname(out_fig), 'id2go.tsv', sep='/')
@@ -59,7 +60,7 @@ resultWeight <- getSigGroups(GOdata, weight.stat)
 
 # Get 'significant' terms
 pvals <- score(resultWeight)
-sig <- pvals[pvals<0.01]
+sig <- pvals[pvals<0.05]
 
 termStat(GOdata, names(sig))
 
@@ -67,7 +68,7 @@ termStat(GOdata, names(sig))
 allRes <- GenTable(
   GOdata,
   classic = resultFisher,
-  weight = resultWeight, 
+  weight = resultWeight,
   orderBy = "weight",
   ranksOf = "classic",
   topNodes = 200
