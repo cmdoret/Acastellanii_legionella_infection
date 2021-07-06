@@ -61,6 +61,7 @@ rule all:
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
     join(OUT, 'plots', 'distance_law_infection.svg'),
     join(OUT, 'diff_expr', 'de_genes.tsv'),
-    join(OUT, 'diff_expr', 'expr_vs_time.tsv')
+    join(OUT, 'diff_expr', 'expr_vs_time.tsv'),
+    expand(join(OUT, 'cool', 'sub_{condition}.mcool'), condition=['infected', 'uninfected'])
 
 
