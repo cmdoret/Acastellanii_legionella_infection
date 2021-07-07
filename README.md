@@ -35,6 +35,11 @@ Some metadata files are provided with the pipeline to help understand the design
 
 The pipeline is subdivided into submodules relating to the processing and downstream analysis of Hi-C and RNAseq data. It starts from fastq files to generate Hi-C matrices and differential expression results. It also computes statistics and does pattern detection on Hi-C contact map to generate figures and tables which will be used by tailored analyses in jupyter notebooks.
 
+Here is a visual summary of pipeline steps and their dependencies:
+
+![](docs/img/rulegraph.svg)
+
+For a more detailed visual summary showing input/output files, see the [filegraph](docs/img/filegraph.svg)
 
 ## Analyses
 
