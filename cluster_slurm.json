@@ -5,7 +5,7 @@
         "ncpus"  : 16,
         "mem" : 16000,
         "ntasks": 1,
-        "name"   : "Ac_assembly.{rule}.{wildcards}",
+        "name"   : "Ac_legio.{rule}.{wildcards}",
         "output" : "logs/cluster/{rule}.{wildcards}.out",
         "error"  : "logs/cluster/{rule}.{wildcards}.err"
     }
