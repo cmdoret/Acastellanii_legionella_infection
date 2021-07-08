@@ -6,6 +6,8 @@ channels:
 dependencies:
   - bioconductor-topgo
   - bioconductor-rgraphviz
+  - bioconductor-apeglm
+  - bioconductor-deseq2
   - fonts-anaconda
   - r-base
   - r-pheatmap
