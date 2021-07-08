@@ -3,27 +3,22 @@ channels:
   - conda-forge
   - bioconda
   - defaults
-  - r
 dependencies:
   - requests
   - pip
   - numpy
   - pandas
-  - cython
   - bowtie2
   - minimap2
   - samtools
   - pysam
   - chromosight
   - seqkit
-  - r-tidyverse
-  - r-yaml
-  - r-optparse
   - pip:
     - cooltools
     - cooler
     - hicstuff
     - bioframe
     - coolpuppy
+    - pareidolia
     - tinycov
-    - "--editable=git+https://github.com/koszullab/pareidolia.git@master#egg=pareidolia-master"

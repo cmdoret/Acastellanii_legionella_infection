@@ -1,5 +1,5 @@
 #!/bin/env snakemake -s
-
+conda: "../envs/hic_processing.yaml"
 
 rule bt2_index:
   input: join(TMP, 'filtered_ref.fa')
@@ -185,7 +185,6 @@ rule insulation_score:
   params:
     win_size_bp = 10 * LOW_RES,
     res = LOW_RES
-  singularity: "docker://cmdoret/cooler:0.8.5"
   shell: 
     """
     cooltools diamond-insulation {input}::/resolutions/{params.res} \
@@ -315,7 +314,7 @@ rule condition_merged_cools:
     COUNT=$(head -n1 {input.target_contacts})
     cooler merge {params.out_cool}_tmp {input.cool}
     # Skips subsampling for the condition with lowest coverage
-    cooltools random-sample --count "$COUNT" {params.out_cool}_tmp {params.out_cool}.cool \
+    cooltools random-sample --count "$COUNT" {params.out_cool}_tmp {params.out_cool} \
       || cp {params.out_cool}_tmp {params.out_cool}
 		cooler zoomify -r {params.max_res},{params.med_res},{params.low_res} \
 		  --balance \
