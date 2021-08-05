@@ -10,16 +10,20 @@ args <- commandArgs(trailingOnly=T)
 
 # Extract gene IDs and GO terms.
 annot_tbl <- read_tsv(args[1], col_types='cccciicccccccccccccc')
-select_genes <- read_tsv(
+loop_genes <- read_tsv(
     args[2],
     col_names=c("chrom", "start", "end", "strand", "score", "name")
-  ) %>%
-  pull(name)
-
-
+  ) 
 out_fig <- args[3]
 out_tbl <- args[4]
+perc_thresh <- as.numeric(args[5])
 tmp_mapfile <- paste(dirname(out_fig), 'id2go.tsv', sep='/')
+
+# Filter genes at loops with strong changes
+select_genes <- loop_genes %>%
+  filter(abs(score) > quantile(abs(score), perc_thresh)) %>%
+  pull(name) %>%
+  unique
 
 # Write geneID - GO terms mapping to file
 annot_tbl %>%
@@ -91,7 +95,7 @@ ggplot(data=tidy_res %>% top_n(30, -weight),
   aes(x=GO.ID, y=-log10(weight))) + 
   geom_segment(aes(xend=GO.ID, yend=min(-log10(weight))), size=1.1) +
   geom_point(aes(size=Annotated, color=Significant / Expected)) + 
-  geom_hline(aes(yintercept=2), lty=2, col='red') +
+  geom_hline(aes(yintercept=-log10(0.05)), lty=2, col='red') +
   theme_minimal() + 
   xlab("") +
   ylab("-log10 pvalue") +
