@@ -14,8 +14,8 @@ mkdir -p fq_pseudo
 for end in 1 2; do
 	for rep in {1..3}; do
 		seqkit sample -p 0.3 -s $rep fq/uninfected_merged.end${end}.fq.gz \
-			> fq_pseudo/pu${rep}.end${end}.fq.gz
+			-j6 -o fq_pseudo/pu${rep}.end${end}.fq.gz
 		seqkit sample -p 0.3 -s $rep fq/infected_merged.end${end}.fq.gz \
-			> fq_pseudo/pi${rep}.end${end}.fq.gz
+			-j6 -o fq_pseudo/pi${rep}.end${end}.fq.gz
 	done
 done
