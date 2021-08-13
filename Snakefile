@@ -63,6 +63,9 @@ rule all:
     join(OUT, 'diff_expr', 'de_genes.tsv'),
     join(OUT, 'diff_expr', 'expr_vs_time.tsv'),
     expand(join(OUT, 'cool', 'sub_{condition}.mcool'), condition=['infected', 'uninfected']),
-    join(OUT, 'diff_expr', 'c3_diff_expr.tsv')
+    join(OUT, 'diff_expr', 'c3_diff_expr.tsv'),
+    expand(join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'), pattern=['loops', 'borders']),
+    expand(join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg'), pattern=['loops', 'borders'])
+
 
 

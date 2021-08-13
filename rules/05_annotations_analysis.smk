@@ -52,11 +52,25 @@ rule bed_closest_genes:
         > {output}
         """
 
+# Define a threshold for infection-dependent patterns
+rule perc_thresh_diff_patterns:
+    input: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
+    output: join(TMP, '{pattern}_change_thresh.txt')
+    params:
+        perc_thresh = 80
+    run:
+        df = pd.read_csv(input[0], sep='\t')
+        thresh = np.percentile(df.diff_score.abs(), params['perc_thresh'])
+        with open(output[0], 'w') as f_out:
+            f_out.write(str(thresh))
+    
+
 # Compute annotation enrichment at bins from pattern changing during infection
 rule go_enrich_change:
     input:
         change = join(OUT, 'pareidolia', '{pattern}_diff_genes.bed'),
-        annot = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt')
+        annot = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt'),
+        thresh = join(TMP, '{pattern}_change_thresh.txt')
     output:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
         tbl = join(OUT, 'go_enrich', '{pattern}_diff_go_enrich.tsv')
@@ -64,3 +78,18 @@ rule go_enrich_change:
     params:
         perc_thresh = 0.80 # Keep above X% quantile loops with strongest change
     shell: "Rscript scripts/go_enrich.R {input.annot} {input.change} {output.plot} {output.tbl} {params.perc_thresh}"
+
+# Show histogram of pattern change along with cutoff
+rule pattern_change_cutoff_hist:
+    input:
+        change = join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'),
+        thresh = join(TMP, '{pattern}_change_thresh.txt')
+    output: join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg')
+    run:
+        with open(input['thresh'], 'r') as f_thr:
+            thresh = float(f_thr.read())
+        df = pd.read_csv(input[0], sep='\t')
+        plt.hist(df.diff_score, bins=100)
+        plt.axvline(thresh, c='r')
+        plt.axvline(-thresh, c='r')
+        plt.savefig(output[0])

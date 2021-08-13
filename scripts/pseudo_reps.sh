@@ -1,4 +1,4 @@
-# Commands used to make pseudo-replicates.
+# Commands used to make pseudo-replicates from fastq files.
 # cmdoret, 20210805
 
 # Merge fastqs for each condition separately

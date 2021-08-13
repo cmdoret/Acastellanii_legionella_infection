@@ -103,16 +103,47 @@ rule quantify_pattern_scores:
                              $out_prefix
         """
 
+
+# Generate pseudo replicates by sampling condition-merged cools
+N_REPS = 2
+rule pseudo_rep_cool:
+    input:
+        join(OUT, 'cool', 'sub_{condition}.mcool'),
+    output:
+        join(OUT, 'cool', '{condition}_{i}.cool'),
+    params:
+        frac = 1 / N_REPS,
+        res = MAX_RES
+    threads: 2
+    shell:
+        """
+        cooltools random-sample -f {params.frac} \
+            {input}::/resolutions/{params.res} \
+            {output}
+        """
+
+
 rule pattern_change:
     input:
-        mcools = expand( join(OUT, 'cool', '{library}.mcool'), library=samples.library),
+        uni = [join(OUT, 'cool', f'uninfected_{i}.cool') for i in range(N_REPS)],
+        inf = [join(OUT, 'cool', f'infected_{i}.cool') for i in range(N_REPS)],
         coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv')
     output: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
     params:
-        condition = samples.infection_time.tolist(),
-        res = MAX_RES
+        condition = [0 for i in range(N_REPS)] + [5 for i in range(N_REPS)]
     conda: '../envs/hic_processing.yaml'
     script: '../scripts/pattern_changes.py'
+
+#rule pattern_change:
+#    input:
+#        mcools = expand( join(OUT, 'cool', '{library}.mcool'), library=samples.library),
+#        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv')
+#    output: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
+#    params:
+#        condition = samples.infection_time.tolist(),
+#        res = MAX_RES
+#    conda: '../envs/hic_processing.yaml'
+#    script: '../scripts/pattern_changes.py'
 
 rule plot_patterns_scores:
     input: scores = expand(join(OUT, 'chromosight', '{library}', '{{pattern}}_quant.tsv'), library=samples.library)

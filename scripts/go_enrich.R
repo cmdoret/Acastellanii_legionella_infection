@@ -16,14 +16,15 @@ loop_genes <- read_tsv(
   ) 
 out_fig <- args[3]
 out_tbl <- args[4]
-perc_thresh <- as.numeric(args[5])
+thresh <- as.numeric(args[5])
 tmp_mapfile <- paste(dirname(out_fig), 'id2go.tsv', sep='/')
 
 # Filter genes at loops with strong changes
 select_genes <- loop_genes %>%
-  filter(abs(score) > quantile(abs(score), perc_thresh)) %>%
+  filter(abs(score) > thresh) %>%
   pull(name) %>%
   unique
+
 
 # Write geneID - GO terms mapping to file
 annot_tbl %>%
