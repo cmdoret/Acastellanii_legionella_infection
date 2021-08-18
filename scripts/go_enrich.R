@@ -14,9 +14,9 @@ loop_genes <- read_tsv(
     args[2],
     col_names=c("chrom", "start", "end", "strand", "score", "name")
   ) 
-out_fig <- args[3]
-out_tbl <- args[4]
-thresh <- as.numeric(args[5])
+thresh <- as.numeric(scan(args[3]))
+out_fig <- args[4]
+out_tbl <- args[5]
 tmp_mapfile <- paste(dirname(out_fig), 'id2go.tsv', sep='/')
 
 # Filter genes at loops with strong changes

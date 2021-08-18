@@ -75,9 +75,7 @@ rule go_enrich_change:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
         tbl = join(OUT, 'go_enrich', '{pattern}_diff_go_enrich.tsv')
     conda: "../envs/r_env.yaml"
-    params:
-        perc_thresh = 0.80 # Keep above X% quantile loops with strongest change
-    shell: "Rscript scripts/go_enrich.R {input.annot} {input.change} {output.plot} {output.tbl} {params.perc_thresh}"
+    shell: "Rscript scripts/go_enrich.R {input.annot} {input.change} {input.thresh} {output.plot} {output.tbl}"
 
 # Show histogram of pattern change along with cutoff
 rule pattern_change_cutoff_hist:
