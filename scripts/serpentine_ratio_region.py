@@ -29,7 +29,7 @@ def get_ratio(
         ratio[np.isposinf(ratio)] = np.nan
     else:
         _, _, ratio = serp.serpentin_binning(
-            mat2, mat1, force_symmetric=True, parallel=12, iterations=50
+            mat2, mat1, force_symmetric=True, parallel=12, iterations=50, threshold=20
         )
     return ratio
 
@@ -38,11 +38,12 @@ def get_matrices(
         clr1: cooler.Cooler, clr2: cooler.Cooler, region: str, no_serp: bool=False,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Retrieve region matrices from input cooler objects"""
-    mat1 = clr1.matrix(balance=False, sparse=False).fetch(region)
-    mat2 = clr2.matrix(balance=False, sparse=False).fetch(region)
+    mat1 = np.nan_to_num(clr1.matrix(balance=True, sparse=False).fetch(region))
+    mat2 = np.nan_to_num(clr2.matrix(balance=True, sparse=False).fetch(region))
+    thr = np.nanpercentile(mat1, 99.8)
     if not no_serp:
         mat2, mat1, _ = serp.serpentin_binning(
-            mat2, mat1, force_symmetric=True, parallel=12, iterations=1000, threshold=10,minthreshold=2
+            mat2, mat1, force_symmetric=True, parallel=12, iterations=100, threshold=thr,minthreshold=thr/5
         )
     return mat1, mat2
 
