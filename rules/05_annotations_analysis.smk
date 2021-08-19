@@ -91,3 +91,40 @@ rule pattern_change_cutoff_hist:
         plt.axvline(thresh, c='r')
         plt.axvline(-thresh, c='r')
         plt.savefig(output[0])
+
+
+# Quantify overlap of loops and borders Allowing for a margin of 1 bin
+rule get_loops_overlap_borders:
+    input:
+        loops = join(OUT, 'pareidolia', 'loops_change_infection_time.bed'),
+        borders = join(OUT, 'pareidolia', 'borders_change_infection_time.bed'),
+        chroms = join(TMP, 'chrom.sizes')
+    output: join(OUT, 'pareidolia', 'overlap_jaccard_loops_borders.txt')
+    params:
+        margin = MAX_RES
+    shell:
+        """
+        bedtools jaccard \
+            -a <(sort -k1,1 -k2,2n {input.borders} \
+                | bedtools slop -i - -g {input.chroms} -b {params.margin}) \
+            -b <(sort -k1,1 -k2,2n {input.loops} \
+                | bedtools slop -i - -g {input.chroms} -b {params.margin}) \
+            > {output}
+        """
+
+
+rule viz_loops_overlap_borders:
+    input:
+        jaccard = join(OUT, 'pareidolia', 'overlap_jaccard_loops_borders.txt'),
+        loops = join(OUT, 'pareidolia', 'loops_change_infection_time.bed'),
+        borders = join(OUT, 'pareidolia', 'borders_change_infection_time.bed')
+    output: join(OUT, 'plots', 'venn_loops_borders_overlap.svg')
+    run:
+        n_loops = len(open(input['loops'], 'r').read().split('\n'))
+        n_borders = len(open(input['borders'], 'r').read().split('\n'))
+        stats = open(input['jaccard'], 'r').read().split('\n')
+        stats = {k: float(v) for k, v in zip(stats[0].split('\t'), stats[1].split('\t'))}
+        from matplotlib_venn import venn2
+        venn2((n_loops, n_borders, stats['n_intersections']))
+        plt.title(f'jaccard index: {stats["jaccard"]}')
+        plt.savefig(output[0])

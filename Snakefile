@@ -65,7 +65,8 @@ rule all:
     expand(join(OUT, 'cool', 'sub_{condition}.mcool'), condition=['infected', 'uninfected']),
     join(OUT, 'diff_expr', 'c3_diff_expr.tsv'),
     expand(join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'), pattern=['loops', 'borders']),
-    expand(join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg'), pattern=['loops', 'borders'])
+    expand(join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg'), pattern=['loops', 'borders']),
+    join(OUT, 'plots', 'venn_loops_borders_overlap.svg')
 
 
 
