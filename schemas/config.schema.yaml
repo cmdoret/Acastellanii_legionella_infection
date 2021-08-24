@@ -12,8 +12,13 @@ properties:
     type            : string
     description     : sequencing units metadata file.
   reference:
-    type            : string
-    description     : path to the reference genome used in the analysis. Contains the mm10 reference genome along with the genome and plasmid of Salmonella enterica subsp. enterica serovar Typhimurium strain LT2.
+    properties:
+      c3:
+        type: string
+        description: The path to the new C3 strain reference genome
+      neff: 
+        type: string
+        description: The path to the new Neff strain reference genome
   contact_maps:
     properties:
       max_res:

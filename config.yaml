@@ -1,11 +1,17 @@
 samples: "samples.tsv"
 units: "units.tsv"
 
-reference: "data/input/genome/C3.fa"
-annot: "data/input/annotations/c3_annotations/Acanthamoeba_castellanii_C3.gff3"
+reference:
+  c3: "data/input/genome/C3.fa"
+  neff: "data/input/genome/Neff.fa"
+
+annot:
+  c3: "data/input/annotations/c3_annotations/Acanthamoeba_castellanii_C3.gff3"
+  neff: "data/input/annotations/neff_annotations/Acanthamoeba_castellanii_Neff.gff3"
+
 enzyme: "DpnII"
 
-neff:
+neff_v1:
   genome: 'data/input/genome/NEFF_v1.fa'
   annot: 'data/input/annotations/NEFF_v1.43.gff'
 
@@ -24,7 +30,7 @@ borders:
     min-dist: 0
     max-dist: 0
 
-rnaseq: "data/input/diff_expr/li2020_table2.xlsx"
+rnaseq_li2020: "data/input/diff_expr/li2020_table2.xlsx"
 
 params:
   hicstuff_iteralign: "--read-len 150 --aligner bowtie2"

@@ -4,9 +4,9 @@
 
 # Extract sheet from excel file for desired timepoint
 rule get_diff_expr:
-    output: join(TMP, 'diff_expr', 'de_genes.tsv')
+    output: join(TMP, 'diff_expr', 'li2020_de_genes.tsv')
     params:
-        xls = config['rnaseq'],
+        xls = config['rnaseq_li2020'],
         time = 8
     run: 
         time = f".{params['time']}hr"
@@ -19,9 +19,9 @@ rule get_diff_expr:
 # Extract the gene expression value at each time point
 # Generate a new table with rows=genes and cols=time
 rule get_expr_vs_time:
-    output: join(OUT, 'diff_expr', 'expr_vs_time.tsv')
+    output: join(OUT, 'diff_expr', 'li2020_expr_vs_time.tsv')
     params:
-        xls = config['rnaseq']
+        xls = config['rnaseq_li2020']
     run:
         time_regex = re.compile(r'\.([0-9]+)hr')
         de = pd.read_excel(params['xls'], sheet_name=None)
@@ -57,11 +57,11 @@ rule download_neff:
 # Liftover annotations from the published Neff (v1) genome
 # to the current C3 assembly
 rule liftover_annotations:
-    output: join(TMP, 'liftoff', 'neff_c3_liftover.gff')
+    output: join(TMP, 'liftoff', 'neffv1_{strain}_liftover.gff')
     params:
-        neff_fa = config['neff']['genome'],
-        neff_annot = config['neff']['annot'],
-        c3_fa = GENOME
+        neff_fa = config['neff_v1']['genome'],
+        neff_annot = config['neff_v1']['annot'],
+        target_fa = lambda w: config['reference'][w.strain]
     conda: '../envs/liftoff.yaml'
     threads: NCPUS
     shell:
@@ -69,17 +69,17 @@ rule liftover_annotations:
         liftoff -g {params.neff_annot} \
             -p {threads} \
             -o {output} \
-            {params.c3_fa} \
+            {params.target_fa} \
             {params.neff_fa}
         """
 
 # intersect liftover coordinates with de novo C3 annotations
 # to get mapping from Neff to C3 identifiers
 rule map_neff_c3_identifiers:
-    input: join(TMP, 'liftoff', 'neff_c3_liftover.gff')
-    output: join(TMP, 'liftoff', 'neff_c3_gene_mapping.tsv')
+    input: join(TMP, 'liftoff', 'neffv1_{strain}_liftover.gff')
+    output: join(TMP, 'liftoff', 'neffv1_{strain}_gene_mapping.tsv')
     params:
-        c3_annot = config['annot']
+        c3_annot = lambda w: config['annot'][w.strain]
     shell:
         """
         # GFF files are converted to bed (using awk) and sorted 
@@ -99,12 +99,12 @@ rule map_neff_c3_identifiers:
           > {output}
         """
 
-# Use the liftover to map gene identifiers from Neff v1 to C3
+# Use the liftover to map gene identifiers from Neff v1 to new assemblies
 rule convert_identifiers:
     input:
-        mapping = join(TMP, 'liftoff', 'neff_c3_gene_mapping.tsv'),
-        de_genes = join(TMP, 'diff_expr', 'de_genes.tsv')
-    output: join(OUT, 'diff_expr', 'de_genes.tsv')
+        mapping = join(TMP, 'liftoff', 'neffv1_{strain}_gene_mapping.tsv'),
+        de_genes = join(TMP, 'diff_expr', 'li2020_de_genes.tsv')
+    output: join(OUT, 'diff_expr', 'neffv1_liftoff_{strain}_de_genes.tsv')
     params:
     run:
         acc_map = pd.read_csv(input['mapping'], sep='\t', names=['neff', 'c3'])

@@ -27,7 +27,7 @@ DATA_DIR = 'data'
 IN = join(DATA_DIR, 'input')
 OUT = join(DATA_DIR, 'output')
 TMP = join(DATA_DIR, 'tmp')
-GENOME = join(config['reference'])
+GENOME = join(config['reference']['c3'])
 ENZ = config["enzyme"]
 MAX_RES = config['contact_maps']['max_res']
 MED_RES = config['contact_maps']['med_res']
@@ -60,13 +60,13 @@ rule all:
     expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders']),
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
     join(OUT, 'plots', 'distance_law_infection.svg'),
-    join(OUT, 'diff_expr', 'de_genes.tsv'),
-    join(OUT, 'diff_expr', 'expr_vs_time.tsv'),
     expand(join(OUT, 'cool', 'sub_{condition}.mcool'), condition=['infected', 'uninfected']),
-    join(OUT, 'diff_expr', 'c3_diff_expr.tsv'),
     expand(join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'), pattern=['loops', 'borders']),
     expand(join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg'), pattern=['loops', 'borders']),
-    join(OUT, 'plots', 'venn_loops_borders_overlap.svg')
+    join(OUT, 'plots', 'venn_loops_borders_overlap.svg'),
+    join(OUT, 'diff_expr', 'li2020_expr_vs_time.tsv'),
+    expand(join(OUT, 'diff_expr', 'neffv1_liftoff_{strain}_de_genes.tsv'), strain=['c3', 'neff']),
+    join(OUT, 'diff_expr', 'c3_diff_expr.tsv'),
 
 
 
