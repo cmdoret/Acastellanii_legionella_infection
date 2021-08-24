@@ -55,7 +55,7 @@ rule download_neff:
 
 
 # Liftover annotations from the published Neff (v1) genome
-# to the current C3 assembly
+# to the current assemblies
 rule liftover_annotations:
     output: join(TMP, 'liftoff', 'neffv1_{strain}_liftover.gff')
     params:
@@ -73,8 +73,8 @@ rule liftover_annotations:
             {params.neff_fa}
         """
 
-# intersect liftover coordinates with de novo C3 annotations
-# to get mapping from Neff to C3 identifiers
+# intersect liftover coordinates with de novo annotations
+# to get mapping from Neff v1 to new identifiers
 rule map_neff_c3_identifiers:
     input: join(TMP, 'liftoff', 'neffv1_{strain}_liftover.gff')
     output: join(TMP, 'liftoff', 'neffv1_{strain}_gene_mapping.tsv')
