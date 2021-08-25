@@ -43,4 +43,5 @@ For a more detailed visual summary showing input/output files, see the [filegrap
 
 ## Analyses
 
-Analyses are described in jupyter notebooks located in the `docs/notebooks` folder. These notebooks are numbered to reflect the logical order in which analyses should be done.
+Analyses are described in jupyter notebooks located in the `docs/notebooks` folder. These notebooks are numbered to reflect the logical order in which analyses should be done. They should be executed in that order as some will generate files for the next notebook.
+
