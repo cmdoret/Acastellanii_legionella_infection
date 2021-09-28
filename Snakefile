@@ -51,15 +51,11 @@ include: 'rules/06_rnaseq.smk'
 
 rule all:
   input:
-    expand(join(OUT, 'cool', '{library}.mcool'), library=samples.library),
     join(OUT, 'plots', 'serpentine_i_u_ratio.svg'),
-    #expand(join(OUT, 'plots', 'coverage_hic_{library}.pdf'), library=samples.library),
     expand(join(OUT, 'plots', '{pattern}_scores.svg'), pattern=['loops', 'borders']),
     expand(join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'), pattern=['loops', 'borders']),
     join(OUT, 'hicrep', 'hicrep_mat.tsv'),
     join(OUT, 'plots', 'distance_law_infection.svg'),
-    expand(join(OUT, 'cool', 'sub_{condition}.mcool'), condition=['infected', 'uninfected']),
-    expand(join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'), pattern=['loops', 'borders']),
     expand(join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg'), pattern=['loops', 'borders']),
     join(OUT, 'plots', 'venn_loops_borders_overlap.svg'),
     join(OUT, 'diff_expr', 'li2020_expr_vs_time.tsv'),
