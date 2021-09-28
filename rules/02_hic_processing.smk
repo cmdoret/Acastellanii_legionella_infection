@@ -270,10 +270,11 @@ rule compute_genomic_distance_law:
 rule plot_distance_law:
   input: expand(join(TMP, 'distance_law', '{library}_ps.tsv'), library=samples.library)
   output: join(OUT, 'plots', 'distance_law_infection.svg')
-  run:
+  params:
+    names = ','.join(samples.library.values.tolist()),
     inputs = ','.join(input[:])
-    names = ','.join(samples.library.values.tolist())
-    shell(f"hicstuff distancelaw -a -l {names} -o {output[0]} --dist-tbl='{inputs}'")
+  conda: '../envs/hic_processing.yaml'
+  shell: "hicstuff distancelaw -a -l {params.names} -o {output} --dist-tbl='{params.inputs}'"
 
 
 # Compute total contacts by condition for subsampling
@@ -284,10 +285,19 @@ rule get_merged_contacts:
       library=samples.loc[samples.condition==w.condition, 'library']
     )
   output: join(TMP, '{condition}_contacts.txt')
-  run:
-    with open(output[0], 'w') as fh:
-      contacts = sum([cooler.Cooler(clr).info['sum'] for clr in input[:]])
-      fh.write(f'{contacts}\n')
+  conda: '../envs/hic_processing.yaml'
+  shell:
+    """
+    declare -i contacts
+    for cl in {input}
+    do
+      curr=$(cooler info $cl \
+        | grep sum \
+        | sed 's/[^0-9]*\([0-9]\+\)$/\1/')
+      contacts=$((contacts+curr))
+    done
+    contacts > {output}
+    """
 
 
 # Retrieve the smallest number of contacts between conditions for subsampling

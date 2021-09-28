@@ -13,6 +13,7 @@ dependencies:
   - samtools=1.7
   - pysam=0.16.0.1
   - chromosight=1.6.1
+  - bedtools=2.26.0
   - seqkit
   - pip:
     - cooltools=0.3.2
