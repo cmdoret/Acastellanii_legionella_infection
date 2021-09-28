@@ -242,7 +242,7 @@ rule serpentine_binning:
   conda: '../envs/hic_processing.yaml'
   shell:
     """
-    python scripts/serpentine_analysis.py \
+    python scripts/02_serpentine_analysis.py \
       {input.a}::/resolutions/{params.serp_res} \
       {input.b}::/resolutions/{params.serp_res} \
       {output}

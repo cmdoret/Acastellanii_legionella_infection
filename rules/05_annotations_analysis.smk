@@ -89,7 +89,7 @@ rule go_enrich_change:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
         tbl = join(OUT, 'go_enrich', '{pattern}_diff_go_enrich.tsv')
     conda: "../envs/r_env.yaml"
-    shell: "Rscript scripts/go_enrich.R {input.annot} {input.change} {input.thresh} {output.plot} {output.tbl}"
+    shell: "Rscript scripts/05_go_enrich.R {input.annot} {input.change} {input.thresh} {output.plot} {output.tbl}"
 
 # Show histogram of pattern change along with cutoff
 rule pattern_change_cutoff_hist:
@@ -128,4 +128,5 @@ rule viz_loops_overlap_borders:
         loops = join(OUT, 'pareidolia', 'loops_change_infection_time.bed'),
         borders = join(OUT, 'pareidolia', 'borders_change_infection_time.bed')
     output: join(OUT, 'plots', 'venn_loops_borders_overlap.svg')
+    conda: '../envs/viz.yaml'
     script: '../scripts/05_viz_loops_overlap_borders.py'

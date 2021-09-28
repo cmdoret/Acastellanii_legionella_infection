@@ -59,7 +59,7 @@ rule hicrep_matrix:
     output: join(OUT, 'hicrep', 'hicrep_mat.tsv')
     params:
         heatmap = join(OUT, 'plots', 'hicrep_mat.pdf'),
-        script = join('scripts', 'hicrep_to_mat.R'),
+        script = join('scripts', '03_hicrep_to_mat.R'),
         samples = config['samples']
     conda: '../envs/r_env.yaml'
     shell:
