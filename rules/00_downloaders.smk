@@ -14,7 +14,7 @@ def lib_to_sra(wildcards):
 
 rule sra_dl_fq:
   message: "Getting {params.acc} into {output}"
-  output: join('fq', '{strain}','{libtype}', '{libname}')
+  output: join('fq', '{libname}')
   params:
     acc = lib_to_sra
   conda: '../envs/sra.yaml'

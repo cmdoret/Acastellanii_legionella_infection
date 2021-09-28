@@ -175,25 +175,6 @@ rule zoomify_normalize_cool:
 					   {input.cool}
     """
 
-
-# 03c: Compute insulation scores along the matrix (TAD boundaries) the diamond 
-# window is set to 50x50 pixels
-rule insulation_score:
-  input: join(OUT, 'cool', '{library}.mcool')
-  output: join(OUT, 'insulation_{library}.bedgraph')
-  params:
-    win_size_bp = 10 * LOW_RES,
-    res = LOW_RES
-  conda: "../envs/hic_processing.yaml"
-  shell: 
-    """
-    cooltools diamond-insulation {input}::/resolutions/{params.res} \
-                                        {params.win_size_bp} |
-      tail -n +2 |
-      awk -vOFS="\t" '{{print $1,$2,$3,$5}}' > {output}
-    """
-
-
 # Merge ends of Hi-C bam files and sort by coord
 rule merge_sort_bam_ends:
   input: expand(join(TMP, 'bam', '{{library}}_hic.{end}.bam'), end=['end1', 'end2'])
@@ -272,7 +253,7 @@ rule plot_distance_law:
   output: join(OUT, 'plots', 'distance_law_infection.svg')
   params:
     names = ','.join(samples.library.values.tolist()),
-    inputs = ','.join(input[:])
+    inputs = ','.join([join(TMP, 'distance_law', f'{lib}_ps.tsv') for lib in samples.library])
   conda: '../envs/hic_processing.yaml'
   shell: "hicstuff distancelaw -a -l {params.names} -o {output} --dist-tbl='{params.inputs}'"
 

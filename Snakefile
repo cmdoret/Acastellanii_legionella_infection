@@ -39,11 +39,9 @@ wildcard_constraints:
   libtype = "|".join(np.unique(units.libtype))
 
 
-conda: "envs/hic_processing.yaml"
 
-# Helper functions
-include: 'scripts/mat_utils.py'
 # Pipeline sub-workflows
+include: 'rules/00_downloaders.smk'
 include: 'rules/01_common.smk'
 include: 'rules/02_hic_processing.smk'
 include: 'rules/03_hic_reproducibility.smk'

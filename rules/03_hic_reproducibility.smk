@@ -5,10 +5,10 @@
 MAXDIST = 100000
 
 # Use two maps from replicates with best sequencing depth to select best h 
-# value for future hicrep runs (PM125 vs PM54)
+# value for future hicrep runs
 rule select_h_param:
     input:
-        rep1 = join(OUT, 'cool', 'AT407.mcool'),
+        rep1 = join(OUT, 'cool', 'AT420.mcool'),
         rep2 = join(OUT, 'cool', 'AT418.mcool')
     output: join(OUT, 'hicrep', 'best_h_value.txt')
     params:
