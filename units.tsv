@@ -1,11 +1,9 @@
-library	unit	libtype	fq1	fq2
-AT337	1	hic	fq/AT337.end1.fq.gz	fq/AT337.end2.fq.gz
-AT438	1	hic	fq/AT438.end1.fq.gz	fq/AT438.end2.fq.gz
-PM106	1	hic	fq/PM106.end1.fq.gz	fq/PM106.end2.fq.gz
-PM106	2	hic	fq/PM106_reseq.end1.fq.gz	fq/PM106_reseq.end2.fq.gz
-AT407	1	hic	fq/AT407.end1.fq.gz	fq/AT407.end2.fq.gz
-AT408	1	hic	fq/AT408.end1.fq.gz	fq/AT408.end2.fq.gz
-AT418	1	hic	fq/AT418.end1.fq.gz	fq/AT418.end2.fq.gz
-AT419	1	hic	fq/AT419.end1.fq.gz	fq/AT419.end2.fq.gz
-AT420	1	hic	fq/AT420.end1.fq.gz	fq/AT420.end2.fq.gz
-AT421	1	hic	fq/AT421.end1.fq.gz	fq/AT421.end2.fq.gz
+library	unit	libtype	sra	fq1	fq2
+AT337	1	hic	SRR15928353	fq/AT337_1.fastq.gz	fq/AT337_2.fastq.gz
+PM106	1	hic	SRR15928352	fq/PM106_1.fastq.gz	fq/PM106_2.fastq.gz
+AT407	1	hic	SRR15928338	fq/AT407_1.fastq.gz	fq/AT407_2.fastq.gz
+AT408	1	hic	SRR15928337	fq/AT408_1.fastq.gz	fq/AT408_2.fastq.gz
+AT418	1	hic	SRR15928342	fq/AT418_1.fastq.gz	fq/AT418_2.fastq.gz
+AT419	1	hic	SRR15928341	fq/AT419_1.fastq.gz	fq/AT419_2.fastq.gz
+AT420	1	hic	SRR15928340	fq/AT420_1.fastq.gz	fq/AT420_2.fastq.gz
+AT421	1	hic	SRR15928339	fq/AT421_1.fastq.gz	fq/AT421_2.fastq.gz

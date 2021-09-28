@@ -1,12 +1,11 @@
 #!/bin/env snakemake -s
-conda: "../envs/hic_processing.yaml"
 
 rule bt2_index:
   input: join(TMP, 'filtered_ref.fa')
   output: touch(join(TMP, 'genome.bt2.done'))
   params:
     idx = join(TMP, 'genome')
-  singularity: "docker://koszullab/hicstuff:latest"
+  singularity: "docker://koszullab/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   shell: "bowtie2-build {input} {params.idx}"
 
@@ -47,7 +46,7 @@ rule split_align_hic:
     index = join(TMP, 'genome'),
     bt2_presets = config['params']['bowtie2']
   threads: 12
-  singularity: "docker://cmdoret/hicstuff:latest"
+  singularity: "docker://cmdoret/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   shell:
     """
@@ -85,7 +84,7 @@ rule generate_pairs:
     enz = ENZ,
     idx = join(TMP, 'genome')
   threads: 1
-  singularity: "docker://koszullab/hicstuff:latest"
+  singularity: "docker://koszullab/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   log: "logs/hicstuff/{library}.log"
   shell:
@@ -185,6 +184,7 @@ rule insulation_score:
   params:
     win_size_bp = 10 * LOW_RES,
     res = LOW_RES
+  conda: "../envs/hic_processing.yaml"
   shell: 
     """
     cooltools diamond-insulation {input}::/resolutions/{params.res} \
@@ -199,6 +199,7 @@ rule merge_sort_bam_ends:
   input: expand(join(TMP, 'bam', '{{library}}_hic.{end}.bam'), end=['end1', 'end2'])
   output: temporary(join(TMP, 'bam', '{library}_hic.merged.bam'))
   threads: NCPUS
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
 	samtools merge -n -@ {threads} -O BAM - {input} \
@@ -217,6 +218,7 @@ rule plot_hic_coverage:
     win_size = 100000,
     win_stride = 10000
   threads: 12
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
 	tinycov covplot \
@@ -237,6 +239,7 @@ rule serpentine_binning:
   output: join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
   params:
     serp_res = LOW_RES
+  conda: '../envs/hic_processing.yaml'
   shell:
     """
     python scripts/serpentine_analysis.py \
@@ -252,6 +255,7 @@ rule compute_genomic_distance_law:
   output:
     tbl = join(TMP, 'distance_law', '{library}_ps.tsv'),
     plt = temp(join(TMP, 'distance_law', '{library}_ps.svg'))
+  conda: '../envs/hic_processing.yaml'
   shell:
     """
     hicstuff distancelaw -a \

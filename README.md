@@ -3,13 +3,23 @@
 ## Background
 
 This repository contains the analysis of _Acanthamoeba castellanii_ infection by Legionella pneumophila.
-We investigate how the host genome is remodelled during infection by an intracellular infection. To investigate these changes, we use Hi-C and RNAseq to measure both 3D changes in chromatin and gene expression changes. We use two biological replicates of uninfected _A. castellanii_ (strain C3) and two infected replicates at 5h post infection.
+We investigate how the host genome is remodelled during infection by an intracellular bacterium. To investigate these changes, we use Hi-C and RNAseq to measure both 3D changes in chromatin and gene expression changes. We use two biological replicates of uninfected _A. castellanii_ (strain C3) and two infected replicates at 5h post infection.
+
+## Dependencies
+
+The pipeline is written using snakemake and has the following dependencies:
+
+* python >= 3.7
+* conda >= 4.8
+* snakemake >= 5.5
+
+Each rule is encapsulated in a conda environment where its dependencies are automatically pulled from the internet.
+Fastq files containing the Hi-C and RNA-seq reads are also downloaded automatically from SRA.
 
 ## Installation
 
-In order to rerun the whole processing pipeline, you need to: \
+In order to rerun the whole processing pipeline, you need to:
 
-* download required fastq files and put them in the fq folder
 * download the input archive and extract it into `data/input`
 
 The processing pipeline is written using snakemake and relies on conda to manage dependencies. You need to have a working conda installation on your machine and install snakemake via pip or conda.

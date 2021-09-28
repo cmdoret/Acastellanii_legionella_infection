@@ -14,6 +14,7 @@ rule select_h_param:
     params:
         maxdist= MAXDIST,
         res = MED_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         hicreppy htrain \
@@ -24,7 +25,7 @@ rule select_h_param:
         """
 
 
-# Will be run n_lib^2 / 2 + n_lib to perform single pairwise comparisons
+# Will be run n_lib^2 / 2 + n_lib times to perform single pairwise comparisons
 # Each output file will be one line: lib1 lib2 corrcoeff
 # All matrices are subsampled to the same number of contacts as the
 # lowest coverage sample
@@ -38,6 +39,7 @@ rule run_hicrep:
     params:
         max_dist = MAXDIST,
         res = MED_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         hicreppy scc \
