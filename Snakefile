@@ -25,6 +25,7 @@ units.index = units.index.set_levels([i.astype(str) for i in units.index.levels]
 
 DATA_DIR = 'data'
 IN = join(DATA_DIR, 'input')
+SHARED = join(IN, 'shared_assets')
 OUT = join(DATA_DIR, 'output')
 TMP = join(DATA_DIR, 'tmp')
 GENOME = join(config['reference']['c3'])

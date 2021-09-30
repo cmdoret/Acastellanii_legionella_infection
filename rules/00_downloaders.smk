@@ -60,3 +60,25 @@ rule sra_to_fq:
     echo "Compress ${{trim}}*fastq"
     gzip -f ${{trim}}*fastq
     """
+
+
+# Download data assets from zenodo record
+rule get_zenodo_assets:
+  output:
+    join(SHARED, 'genomes', 'NEFF_v1.fa'),
+    join(SHARED, 'annotations', 'NEFF_v1.43.gff'),
+    expand(join(SHARED, 'genomes', '{strain}_assembly.fa'), strain=['Neff', 'C3']),
+    expand(join(SHARED, 'annotations', '{strain}_annotations.gff'), strain=['Neff', 'C3']),
+    join(SHARED, 'annotations', 'C3_annotations.txt'),
+    join(SHARED, 'rnaseq', 'li2020', 'li2020_table2.xlsx'),
+    url_tbl = join(TMP, 'zenodo_urls.tsv')
+  conda: '../envs/zenodo_get.yaml'
+  priority: 100
+  params:
+    in_dir = IN
+  shell:
+    """
+    zenodo_get -d https://doi.org/10.5281/zenodo.5507417 -w {output.url_tbl}
+    wget $(grep "shared_assets" {output.url_tbl}) -O - \
+     | tar xzvf - --directory={params.in_dir} >/dev/null
+    """

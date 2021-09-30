@@ -25,13 +25,13 @@ rule border_change_to_bed:
 
 # Format genome annotations into BED, with 1 gene/line
 rule annot_to_bed:
+    input: join(SHARED, 'annotations', 'C3_annotations.txt')
     output: temp(join(TMP, 'genes.bed'))
     params:
-        genes = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt')
     shell:
         """
-        paste <(cut -f4-6 {params.genes}) \
-              <(cut -f1 {params.genes}) \
+        paste <(cut -f4-6 {input}) \
+              <(cut -f1 {input}) \
         | sed 's/\t$/\t./' \
         | tail -n+2 \
         > {output}
@@ -83,7 +83,7 @@ rule perc_thresh_diff_patterns:
 rule go_enrich_change:
     input:
         change = join(OUT, 'pareidolia', '{pattern}_diff_genes.bed'),
-        annot = join(IN, 'annotations', 'c3_annotations', 'Acanthamoeba_castellanii_C3.annotations.txt'),
+        annot = join(SHARED, 'annotations', 'C3_annotations.txt'),
         thresh = join(TMP, '{pattern}_change_thresh.txt')
     output:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
