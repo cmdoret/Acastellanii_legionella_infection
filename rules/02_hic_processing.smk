@@ -1,12 +1,11 @@
 #!/bin/env snakemake -s
-conda: "../envs/hic_processing.yaml"
 
 rule bt2_index:
   input: join(TMP, 'filtered_ref.fa')
   output: touch(join(TMP, 'genome.bt2.done'))
   params:
     idx = join(TMP, 'genome')
-  singularity: "docker://koszullab/hicstuff:latest"
+  singularity: "docker://koszullab/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   shell: "bowtie2-build {input} {params.idx}"
 
@@ -47,7 +46,7 @@ rule split_align_hic:
     index = join(TMP, 'genome'),
     bt2_presets = config['params']['bowtie2']
   threads: 12
-  singularity: "docker://cmdoret/hicstuff:latest"
+  singularity: "docker://cmdoret/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   shell:
     """
@@ -85,7 +84,7 @@ rule generate_pairs:
     enz = ENZ,
     idx = join(TMP, 'genome')
   threads: 1
-  singularity: "docker://koszullab/hicstuff:latest"
+  singularity: "docker://koszullab/hicstuff:3.1.0"
   conda: "../envs/hic_processing.yaml"
   log: "logs/hicstuff/{library}.log"
   shell:
@@ -176,29 +175,12 @@ rule zoomify_normalize_cool:
 					   {input.cool}
     """
 
-
-# 03c: Compute insulation scores along the matrix (TAD boundaries) the diamond 
-# window is set to 50x50 pixels
-rule insulation_score:
-  input: join(OUT, 'cool', '{library}.mcool')
-  output: join(OUT, 'insulation_{library}.bedgraph')
-  params:
-    win_size_bp = 10 * LOW_RES,
-    res = LOW_RES
-  shell: 
-    """
-    cooltools diamond-insulation {input}::/resolutions/{params.res} \
-                                        {params.win_size_bp} |
-      tail -n +2 |
-      awk -vOFS="\t" '{{print $1,$2,$3,$5}}' > {output}
-    """
-
-
 # Merge ends of Hi-C bam files and sort by coord
 rule merge_sort_bam_ends:
   input: expand(join(TMP, 'bam', '{{library}}_hic.{end}.bam'), end=['end1', 'end2'])
   output: temporary(join(TMP, 'bam', '{library}_hic.merged.bam'))
   threads: NCPUS
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
 	samtools merge -n -@ {threads} -O BAM - {input} \
@@ -217,6 +199,7 @@ rule plot_hic_coverage:
     win_size = 100000,
     win_stride = 10000
   threads: 12
+  conda: "../envs/hic_processing.yaml"
   shell:
     """
 	tinycov covplot \
@@ -237,9 +220,10 @@ rule serpentine_binning:
   output: join(OUT, 'plots', 'serpentine_i_u_ratio.svg')
   params:
     serp_res = LOW_RES
+  conda: '../envs/hic_processing.yaml'
   shell:
     """
-    python scripts/serpentine_analysis.py \
+    python scripts/02_serpentine_analysis.py \
       {input.a}::/resolutions/{params.serp_res} \
       {input.b}::/resolutions/{params.serp_res} \
       {output}
@@ -252,6 +236,7 @@ rule compute_genomic_distance_law:
   output:
     tbl = join(TMP, 'distance_law', '{library}_ps.tsv'),
     plt = temp(join(TMP, 'distance_law', '{library}_ps.svg'))
+  conda: '../envs/hic_processing.yaml'
   shell:
     """
     hicstuff distancelaw -a \
@@ -266,10 +251,11 @@ rule compute_genomic_distance_law:
 rule plot_distance_law:
   input: expand(join(TMP, 'distance_law', '{library}_ps.tsv'), library=samples.library)
   output: join(OUT, 'plots', 'distance_law_infection.svg')
-  run:
-    inputs = ','.join(input[:])
-    names = ','.join(samples.library.values.tolist())
-    shell(f"hicstuff distancelaw -a -l {names} -o {output[0]} --dist-tbl='{inputs}'")
+  params:
+    names = ','.join(samples.library.values.tolist()),
+    inputs = ','.join([join(TMP, 'distance_law', f'{lib}_ps.tsv') for lib in samples.library])
+  conda: '../envs/hic_processing.yaml'
+  shell: "hicstuff distancelaw -a -l {params.names} -o {output} --dist-tbl='{params.inputs}'"
 
 
 # Compute total contacts by condition for subsampling
@@ -280,10 +266,19 @@ rule get_merged_contacts:
       library=samples.loc[samples.condition==w.condition, 'library']
     )
   output: join(TMP, '{condition}_contacts.txt')
-  run:
-    with open(output[0], 'w') as fh:
-      contacts = sum([cooler.Cooler(clr).info['sum'] for clr in input[:]])
-      fh.write(f'{contacts}\n')
+  conda: '../envs/hic_processing.yaml'
+  shell:
+    """
+    declare -i contacts
+    for cl in {input}
+    do
+      curr=$(cooler info $cl \
+        | grep sum \
+        | sed 's/[^0-9]*\([0-9]\+\)$/\1/')
+      contacts=$((contacts+curr))
+    done
+    contacts > {output}
+    """
 
 
 # Retrieve the smallest number of contacts between conditions for subsampling

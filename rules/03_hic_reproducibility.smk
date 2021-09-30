@@ -5,15 +5,16 @@
 MAXDIST = 100000
 
 # Use two maps from replicates with best sequencing depth to select best h 
-# value for future hicrep runs (PM125 vs PM54)
+# value for future hicrep runs
 rule select_h_param:
     input:
-        rep1 = join(OUT, 'cool', 'AT407.mcool'),
+        rep1 = join(OUT, 'cool', 'AT420.mcool'),
         rep2 = join(OUT, 'cool', 'AT418.mcool')
     output: join(OUT, 'hicrep', 'best_h_value.txt')
     params:
         maxdist= MAXDIST,
         res = MED_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         hicreppy htrain \
@@ -24,7 +25,7 @@ rule select_h_param:
         """
 
 
-# Will be run n_lib^2 / 2 + n_lib to perform single pairwise comparisons
+# Will be run n_lib^2 / 2 + n_lib times to perform single pairwise comparisons
 # Each output file will be one line: lib1 lib2 corrcoeff
 # All matrices are subsampled to the same number of contacts as the
 # lowest coverage sample
@@ -38,6 +39,7 @@ rule run_hicrep:
     params:
         max_dist = MAXDIST,
         res = MED_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         hicreppy scc \
@@ -57,7 +59,7 @@ rule hicrep_matrix:
     output: join(OUT, 'hicrep', 'hicrep_mat.tsv')
     params:
         heatmap = join(OUT, 'plots', 'hicrep_mat.pdf'),
-        script = join('scripts', 'hicrep_to_mat.R'),
+        script = join('scripts', '03_hicrep_to_mat.R'),
         samples = config['samples']
     conda: '../envs/r_env.yaml'
     shell:

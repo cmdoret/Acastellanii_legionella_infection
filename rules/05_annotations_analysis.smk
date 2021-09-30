@@ -43,6 +43,7 @@ rule bed_closest_genes:
         change = join(OUT, 'pareidolia', '{pattern}_change_infection_time.bed'),
         genes = join(TMP, 'genes.bed')
     output: join(OUT, 'pareidolia', '{pattern}_diff_genes.bed')
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         bedtools closest \
@@ -52,17 +53,30 @@ rule bed_closest_genes:
         > {output}
         """
 
-# Define a threshold for infection-dependent patterns
+# Compute percentile threshold for infection-dependent patterns
 rule perc_thresh_diff_patterns:
     input: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
     output: join(TMP, '{pattern}_change_thresh.txt')
     params:
         perc_thresh = 80
-    run:
-        df = pd.read_csv(input[0], sep='\t')
-        thresh = np.percentile(df.diff_score.abs(), params['perc_thresh'])
-        with open(output[0], 'w') as f_out:
-            f_out.write(str(thresh))
+    shell:
+        """
+        tmp=$(tempfile)
+        # Get number of lines (w/o header) and send sorted abs. scores to tmp file
+        tot=$(
+            cut -f 9 {input} \
+                | tail -n+2 \
+                | tr -d '-' \
+                | sort -n \
+                | tee $tmp \
+                | wc -l
+        )
+        # Get row number for desired percentile
+        # (n + 99) / 100 with integers is effectively ceil(n/100) with floats
+        count=$(((tot * {params.perc_thresh} + 99) / 100))
+        # Get score at corresponding row
+        sed -n "${count}p" $tmp > {output}
+        """
     
 
 # Compute annotation enrichment at bins from pattern changing during infection
@@ -75,7 +89,7 @@ rule go_enrich_change:
         plot = join(OUT, 'plots', '{pattern}_diff_go_enrich.svg'),
         tbl = join(OUT, 'go_enrich', '{pattern}_diff_go_enrich.tsv')
     conda: "../envs/r_env.yaml"
-    shell: "Rscript scripts/go_enrich.R {input.annot} {input.change} {input.thresh} {output.plot} {output.tbl}"
+    shell: "Rscript scripts/05_go_enrich.R {input.annot} {input.change} {input.thresh} {output.plot} {output.tbl}"
 
 # Show histogram of pattern change along with cutoff
 rule pattern_change_cutoff_hist:
@@ -83,14 +97,8 @@ rule pattern_change_cutoff_hist:
         change = join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv'),
         thresh = join(TMP, '{pattern}_change_thresh.txt')
     output: join(OUT, 'plots', '{pattern}_diff_cutoff_hist.svg')
-    run:
-        with open(input['thresh'], 'r') as f_thr:
-            thresh = float(f_thr.read())
-        df = pd.read_csv(input[0], sep='\t')
-        plt.hist(df.diff_score, bins=100)
-        plt.axvline(thresh, c='r')
-        plt.axvline(-thresh, c='r')
-        plt.savefig(output[0])
+    conda: "../envs/viz.yaml"
+    script: "../scripts/05_pattern_change_cutoff_hist.py"
 
 
 # Quantify overlap of loops and borders Allowing for a margin of 1 bin
@@ -102,6 +110,7 @@ rule get_loops_overlap_borders:
     output: join(OUT, 'pareidolia', 'overlap_jaccard_loops_borders.txt')
     params:
         margin = MAX_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         bedtools jaccard \
@@ -119,12 +128,5 @@ rule viz_loops_overlap_borders:
         loops = join(OUT, 'pareidolia', 'loops_change_infection_time.bed'),
         borders = join(OUT, 'pareidolia', 'borders_change_infection_time.bed')
     output: join(OUT, 'plots', 'venn_loops_borders_overlap.svg')
-    run:
-        n_loops = len(open(input['loops'], 'r').read().split('\n'))
-        n_borders = len(open(input['borders'], 'r').read().split('\n'))
-        stats = open(input['jaccard'], 'r').read().split('\n')
-        stats = {k: float(v) for k, v in zip(stats[0].split('\t'), stats[1].split('\t'))}
-        from matplotlib_venn import venn2
-        venn2((n_loops, n_borders, stats['n_intersections']))
-        plt.title(f'jaccard index: {stats["jaccard"]}')
-        plt.savefig(output[0])
+    conda: '../envs/viz.yaml'
+    script: '../scripts/05_viz_loops_overlap_borders.py'

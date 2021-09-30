@@ -37,6 +37,7 @@ rule detect_patterns:
         min_sep = 5 * MAX_RES,
         min_dist = lambda w: config[w.pattern]['min-dist'],
         max_dist = lambda w: config[w.pattern]['max-dist']
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         out_prefix={output.coords}
@@ -65,17 +66,8 @@ rule find_subsampling_value:
     output: join(OUT, 'chromosight', 'target_contacts.txt')
     params:
         res = MAX_RES
-    run:
-        min_contacts = np.inf
-        for inp in input[:]:
-            c = cooler.Cooler(inp + f"::/resolutions/{params['res']}")
-            c_sum = c.info['sum']
-            if c_sum < min_contacts:
-                min_contacts = c_sum
-            print(f"{inp}: {c_sum}")
-        print(f"lowest : {min_contacts}")
-        with open(output[0], 'w') as out:
-            out.write(str(min_contacts))
+    conda: '../envs/hic_processing.yaml'
+    script: '../scripts/04_find_subsampling_value.py'
 
 # Quantify loop and border scores on the individual matrices.
 rule quantify_pattern_scores:
@@ -88,6 +80,7 @@ rule quantify_pattern_scores:
         wins = join(OUT, 'chromosight', '{library}', '{pattern}_quant.npy')
     params:
         res = MAX_RES
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         out_prefix={output.coords}
@@ -115,6 +108,7 @@ rule pseudo_rep_cool:
         frac = 1 / N_REPS,
         res = MAX_RES
     threads: 2
+    conda: '../envs/hic_processing.yaml'
     shell:
         """
         cooltools random-sample -f {params.frac} \
@@ -132,33 +126,14 @@ rule pattern_change:
     params:
         condition = [0 for i in range(N_REPS)] + [5 for i in range(N_REPS)]
     conda: '../envs/hic_processing.yaml'
-    script: '../scripts/pattern_changes.py'
+    script: '../scripts/04_pattern_changes.py'
 
-#rule pattern_change:
-#    input:
-#        mcools = expand( join(OUT, 'cool', '{library}.mcool'), library=samples.library),
-#        coords = join(OUT, 'chromosight', 'merged_contacts', '{pattern}_out.tsv')
-#    output: join(OUT, 'pareidolia', '{pattern}_change_infection_time.tsv')
-#    params:
-#        condition = samples.infection_time.tolist(),
-#        res = MAX_RES
-#    conda: '../envs/hic_processing.yaml'
-#    script: '../scripts/pattern_changes.py'
 
 rule plot_patterns_scores:
     input: scores = expand(join(OUT, 'chromosight', '{library}', '{{pattern}}_quant.tsv'), library=samples.library)
     output: join(OUT, 'plots', '{pattern}_scores.svg')
+    params:
+        samples = samples
     threads: 1
-    run:
-        mpl.use("Agg")
-        for i, scores in enumerate(input['scores']):
-            scores = pd.read_csv(scores, sep='\t')
-            scores['infection_time'] = samples.infection_time.values[i]
-            scores['library'] = samples.library.values[i]
-            if i:
-                all_scores = pd.concat([all_scores, scores])
-            else:
-                all_scores = scores
-        sns.violinplot(data=all_scores, x='library', y='score', hue='infection_time')
-        plt.ylabel(f"{wildcards['pattern']} score")
-        plt.savefig(output[0])
+    conda: '../envs/viz.yaml'
+    script: '../scripts/04_plot_patterns_scores.py'
