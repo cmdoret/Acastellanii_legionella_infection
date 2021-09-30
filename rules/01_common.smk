@@ -35,9 +35,9 @@ rule combine_units:
       if len(params['r2']):
         shell(f"cat {' '.join(params['r2'])} > {output['r2']}")
     else:
-      shell(f"ln -s {input[0]} {output['r1']}")
+      shell(f"ln -s $PWD/{input[0]} {output['r1']}")
       if len(params['r2']):
-        shell(f"ln -s {params['r2'][0]} {output['r2']}")
+        shell(f"ln -s $PWD/{params['r2'][0]} {output['r2']}")
 
 
 # Remove small contigs from the reference
