@@ -1,9 +1,15 @@
 # Genomic changes during infection of amoeba by _L. pneumophila_
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5541742.svg)](https://doi.org/10.5281/zenodo.5541742)
+
+
 ## Background
 
 This repository contains the analysis of _Acanthamoeba castellanii_ infection by Legionella pneumophila.
 We investigate how the host genome is remodelled during infection by an intracellular bacterium. To investigate these changes, we use Hi-C and RNAseq to measure both 3D changes in chromatin and gene expression changes. We use two biological replicates of uninfected _A. castellanii_ (strain C3) and two infected replicates at 5h post infection.
+
+A frozen copy of this repository and its output data are available for download at the [corresponding Zenodo record](https://doi.org/10.5281/zenodo.5507417).
 
 ## Dependencies
 
@@ -13,16 +19,12 @@ The pipeline is written using snakemake and has the following dependencies:
 * conda >= 4.8
 * snakemake >= 5.5
 
-Each rule is encapsulated in a conda environment where its dependencies are automatically pulled from the internet.
-Fastq files containing the Hi-C and RNA-seq reads are also downloaded automatically from SRA.
+Each rule is encapsulated in a conda environment where its dependencies are managed automatically.
+Fastq files containing the Hi-C and RNA-seq reads are also downloaded automatically from SRA. Input files (genomes, annotations, ...) are automatically downloaded from the [corresponding Zenodo record](https://doi.org/10.5281/zenodo.5507417).
 
 ## Installation
 
-In order to rerun the whole processing pipeline, you need to:
-
-* download the input archive and extract it into `data/input`
-
-The processing pipeline is written using snakemake and relies on conda to manage dependencies. You need to have a working conda installation on your machine and install snakemake via pip or conda.
+You need to have a working conda installation on your machine and install snakemake (>=5.5) via pip or conda.
 
 ## Usage
 
@@ -31,7 +33,7 @@ You can then run the pipeline with:
 ```sh
 snakemake -j6 --use-conda
 ```
-And the pipeline should fetch required packages as it runs.
+And the pipeline should fetch required packages and data as it runs.
 
 ## Configuration
 
