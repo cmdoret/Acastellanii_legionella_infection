@@ -269,7 +269,7 @@ rule get_merged_contacts:
   conda: '../envs/hic_processing.yaml'
   shell:
     """
-    declare -i contacts
+    contacts=0
     for cl in {input}
     do
       curr=$(cooler info $cl \
@@ -277,7 +277,7 @@ rule get_merged_contacts:
         | sed 's/[^0-9]*\([0-9]\+\)$/\1/')
       contacts=$((contacts+curr))
     done
-    contacts > {output}
+    echo $contacts > {output}
     """
 
 

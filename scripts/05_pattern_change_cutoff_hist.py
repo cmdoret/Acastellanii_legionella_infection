@@ -4,7 +4,7 @@ import pandas as pd
 
 with open(snakemake.input['thresh'], 'r') as f_thr:
 	thresh = float(f_thr.read())
-df = pd.read_csv(input[0], sep='\t')
+df = pd.read_csv(snakemake.input['change'], sep='\t')
 plt.hist(df.diff_score, bins=100)
 plt.axvline(thresh, c='r')
 plt.axvline(-thresh, c='r')

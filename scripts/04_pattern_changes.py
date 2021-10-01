@@ -16,7 +16,7 @@ pattern_out = pah.change_detection_pipeline(
     subsample=True,
     density_thresh=None,
     pearson_thresh=0.0,
-    snr_thresh=0.0,
+    cnr_thresh=0.0,
     n_cpus=8,
 )
 

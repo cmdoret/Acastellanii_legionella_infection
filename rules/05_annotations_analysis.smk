@@ -75,7 +75,7 @@ rule perc_thresh_diff_patterns:
         # (n + 99) / 100 with integers is effectively ceil(n/100) with floats
         count=$(((tot * {params.perc_thresh} + 99) / 100))
         # Get score at corresponding row
-        sed -n "${count}p" $tmp > {output}
+        sed -n "${{count}}p" $tmp > {output}
         """
     
 

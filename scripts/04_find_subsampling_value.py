@@ -5,7 +5,7 @@ import cooler
 
 
 min_contacts = np.inf
-for inp in input[:]:
+for inp in snakemake.input[:]:
     c = cooler.Cooler(inp + f"::/resolutions/{snakemake.params['res']}")
     c_sum = c.info['sum']
     if c_sum < min_contacts:
