@@ -59,10 +59,10 @@ For a more detailed visual summary showing input/output files, see the [filegrap
 
 Analyses are described in jupyter notebooks located in the `docs/notebooks` folder. These notebooks are numbered to reflect the logical order in which analyses should be done. They should be executed in that order as some will generate files for the next notebook.
 
-* Statistical exploration of chromatin loop changes [Notebook](docs/notebooks/01_diff_contacts_annot.ipynb)
-* Visual exploration of global contact changes during infection [Notebook](docs/notebooks/02_diff_contacts_viz.ipynb)
-* Analysis of interchromosomal contacts changes [Notebook](docs/notebooks/03_interchrom_contacts.ipynb)
-* Detection and overview of chromatin insulation domains [Notebook](docs/notebooks/04_domains_analyses.ipynb)
-* Analysis of the relationship between expression and contacts changes during infection [Notebook](docs/notebooks/05_infection_contacts_diff_expr.ipynb)
-* Analysis of gene coexpression versus contact changes using lifted-over expression data from [Li et al. 2020](https://www.frontiersin.org/articles/10.3389/fcimb.2020.00428/full) [Notebook](docs/notebooks/06_Li2020_liftover_c3_infection_contacts_coexpr.ipynb)
+* [Notebook](docs/notebooks/01_diff_contacts_annot.ipynb): Statistical exploration of chromatin loop changes
+* [Notebook](docs/notebooks/02_diff_contacts_viz.ipynb): Visual exploration of global contact changes during infection
+* [Notebook](docs/notebooks/03_interchrom_contacts.ipynb): Analysis of interchromosomal contacts changes
+* [Notebook](docs/notebooks/04_domains_analyses.ipynb): Detection and overview of chromatin insulation domains
+* [Notebook](docs/notebooks/05_infection_contacts_diff_expr.ipynb): Analysis of the relationship between expression and contacts changes during infection
+* [Notebook](docs/notebooks/06_Li2020_liftover_c3_infection_contacts_coexpr.ipynb): Analysis of gene coexpression versus contact changes using lifted-over expression data from [Li et al. 2020](https://www.frontiersin.org/articles/10.3389/fcimb.2020.00428/full)
 
