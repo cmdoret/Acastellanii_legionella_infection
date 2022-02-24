@@ -5,7 +5,7 @@ rule bt2_index:
   output: touch(join(TMP, 'genome.bt2.done'))
   params:
     idx = join(TMP, 'genome')
-  singularity: "docker://koszullab/hicstuff:3.1.0"
+  singularity: "docker://koszullab/hicstuff:v3.1.0"
   conda: "../envs/hic_processing.yaml"
   shell: "bowtie2-build {input} {params.idx}"
 
@@ -46,14 +46,15 @@ rule split_align_hic:
     index = join(TMP, 'genome'),
     bt2_presets = config['params']['bowtie2']
   threads: 12
-  singularity: "docker://cmdoret/hicstuff:3.1.0"
+  singularity: "docker://koszullab/hicstuff:v3.1.0"
   conda: "../envs/hic_processing.yaml"
+  log: "logs/mapping/{library}_{split}_{end}.log"
   shell:
     """
     bowtie2 {params.bt2_presets} \
             -p {threads} \
             -x {params.index} \
-            -U {input.fq} | 
+            -U {input.fq} 2> {log} | 
       samtools sort -@ {threads} -n -O BAM -o {output}
     """
 
@@ -84,7 +85,7 @@ rule generate_pairs:
     enz = ENZ,
     idx = join(TMP, 'genome')
   threads: 1
-  singularity: "docker://koszullab/hicstuff:3.1.0"
+  singularity: "docker://koszullab/hicstuff:v3.1.0"
   conda: "../envs/hic_processing.yaml"
   log: "logs/hicstuff/{library}.log"
   shell:
